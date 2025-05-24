@@ -10,11 +10,14 @@ import java.util.Map;
 import java.util.StringJoiner;
 import Lib.ArrayBuilder;
 
+import java.sql.*;
+import java.util.*;
+
 public class DBQueryBuilder {
     DBConnection db = new DBConnection();
     private Connection con = db.getConnection();
-    
-    private StringBuilder query, select, table, where, order_by, group_by;
+
+    private StringBuilder query, select, table, where, order_by, group_by, join;
     public DBQueryBuilder() {
         query = new StringBuilder();
         select = new StringBuilder();
@@ -22,6 +25,7 @@ public class DBQueryBuilder {
         where = new StringBuilder();
         order_by = new StringBuilder();
         group_by = new StringBuilder();
+        join = new StringBuilder();
     }
 
     // SELECT
@@ -37,6 +41,12 @@ public class DBQueryBuilder {
 
     public DBQueryBuilder from(String tableName) {
         table.append("FROM ").append(tableName).append(" ");
+        return this;
+    }
+
+    // LEFT JOIN
+    public DBQueryBuilder leftJoin(String tableName, String condition) {
+        join.append("LEFT JOIN ").append(tableName).append(" ON ").append(condition).append(" ");
         return this;
     }
 
@@ -87,42 +97,70 @@ public class DBQueryBuilder {
 
     // DELETE
     public DBQueryBuilder delete(String table) {
-        query.append("DELETE FROM ").append(table).append(" ");
+        query.append("DELETE FROM ").append(table).append(" ").append(where);
         return this;
     }
 
-    public ResultSet result() 
-    {
+    // GET all records
+    public List<Map<String, Object>> get() {
         try {
-            PreparedStatement ps = con.prepareStatement(query.toString().trim());
-            return ps.executeQuery(); 
+            String finalQuery = buildQuery();
+            PreparedStatement stmt = con.prepareStatement(finalQuery);
+            ResultSet rs = stmt.executeQuery();
+
+            List<Map<String, Object>> results = new ArrayList<>();
+            ResultSetMetaData meta = rs.getMetaData();
+            int columnCount = meta.getColumnCount();
+
+            while (rs.next()) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    row.put(meta.getColumnName(i), rs.getObject(i));
+                }
+                results.add(row);
+            }
+
+            return results;
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null,
-                "Error saat menjalankan SELECT: " + e.getMessage() +
-                "\nSQLState: " + e.getSQLState() +
-                "\nErrorCode: " + e.getErrorCode());
-            return null;
+            e.printStackTrace();
+            return Collections.emptyList();
         }
     }
-    
-    public boolean execute() {
-        try {
-            PreparedStatement ps = con.prepareStatement(query.toString().trim());
-            int result = ps.executeUpdate();
 
-            if (result > 0) {
-                return true;
-            } else {
-                JOptionPane.showMessageDialog(null, "Operasi gagal : Tidak ada data yang terpengaruh.");
-                return false;
+    // GET first record
+    public Map<String, Object> first() {
+        try {
+            String finalQuery = buildQuery() + "LIMIT 1";
+            PreparedStatement stmt = con.prepareStatement(finalQuery);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                ResultSetMetaData meta = rs.getMetaData();
+                for (int i = 1; i <= meta.getColumnCount(); i++) {
+                    row.put(meta.getColumnName(i), rs.getObject(i));
+                }
+                return row;
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null,
-                "Error saat menjalankan query: " + e.getMessage() +
-                "\nSQLState: " + e.getSQLState() +
-                "\nErrorCode: " + e.getErrorCode());
-            return false;
+            e.printStackTrace();
         }
+        return null;
     }
 
+    // Build final query
+    private String buildQuery() {
+        if (query.length() > 0) {
+            return query.toString(); // For insert, update, delete
+        }
+
+        StringBuilder fullQuery = new StringBuilder();
+        fullQuery.append(select)
+                 .append(table)
+                 .append(join)
+                 .append(where)
+                 .append(group_by)
+                 .append(order_by);
+        return fullQuery.toString();
+    }
 }
