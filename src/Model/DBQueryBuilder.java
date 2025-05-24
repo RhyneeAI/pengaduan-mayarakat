@@ -65,14 +65,13 @@ public class DBQueryBuilder {
     }
 
     // INSERT
-    public DBQueryBuilder insert(String table, Map<String, Object> data) {
+    public DBQueryBuilder insert(String table, ArrayBuilder[] data) {
         StringJoiner columns = new StringJoiner(", ");
         StringJoiner values = new StringJoiner(", ");
 
-        for (Map.Entry<String, Object> entry : data.entrySet()) {
-            columns.add(entry.getKey());
-            Object value = entry.getValue();
-            values.add(value instanceof String ? "'" + value + "'" : value.toString());
+        for (ArrayBuilder item : data) {
+            columns.add(item.key);
+            values.add("'" + item.value + "'");
         }
 
         query.append("INSERT INTO ").append(table)
@@ -82,12 +81,11 @@ public class DBQueryBuilder {
     }
 
     // UPDATE
-    public DBQueryBuilder update(String table, Map<String, Object> data) {
+    public DBQueryBuilder update(String table, ArrayBuilder[] data) {
         StringJoiner setClause = new StringJoiner(", ");
 
-        for (Map.Entry<String, Object> entry : data.entrySet()) {
-            Object value = entry.getValue();
-            setClause.add(entry.getKey() + " = " + (value instanceof String ? "'" + value + "'" : value.toString()));
+        for (ArrayBuilder item : data) {
+            setClause.add(item.key + " = '" + item.value + "'");
         }
 
         query.append("UPDATE ").append(table)
