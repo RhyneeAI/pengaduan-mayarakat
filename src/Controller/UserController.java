@@ -6,7 +6,10 @@ import java.util.Map;
 import View.RegisterForm;
 import Model.DBQueryBuilder;
 import Helper.PasswordHelper;
+import Helper.ValidationHelper;
+import Lib.ArrayBuilder;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class UserController {
     public static void main(String[] args) {
@@ -14,34 +17,29 @@ public class UserController {
         f.setVisible(true);
     }
     
-    public Map<String, Object> login(String[] userData) {
-        Map<String, Object> result = new HashMap<>();
-        String[] fieldNames = {
-            "Username", "Password"
-        };
-
-        for (int i = 0; i < userData.length; i++) {
-            if (userData[i] == null || userData[i].trim().isEmpty()) {
-                result.put("status", false);
-                result.put("message", fieldNames[i] + " harus diisi.");
-                return result;
-            }
+    public Map<String, Object> login(List<ArrayBuilder> userdata) {
+        Map<String, String> userMap = new HashMap<>();
+        for (ArrayBuilder ab : userdata) {
+            userMap.put(ab.key, ab.value);
         }
-        
-        String username = userData[0];
-        String password = userData[1];
-        
-        PasswordHelper pw = new PasswordHelper();
-        String generatePW = pw.hashPassword(password); 
-        
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("username", userData[0]);
-        userMap.put("password", generatePW);
-        
+
+        List<String> requiredFields = List.of("username", "password");
+        Map<String, Object> validationResult = ValidationHelper.validateFields(userMap, requiredFields);
+
+        if (validationResult != null) {
+            return validationResult; 
+        }
+
+        String username = userMap.get("username");
+        String password = userMap.get("password");
+
         UserModel user = new UserModel();
-        user.login(username, password);
-     
-        return null;
+        Boolean r = user.login(username, password);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", true);
+        result.put("message", r ? "Login berhasil! Selamat datang, " + username : "Login Gagal! Username atau password salah.");
+        return result;
     }
 
     public Map<String, Object> store(String[] userData) {

@@ -1,6 +1,8 @@
 package Model;
 
 import Helper.MessageHelper;
+import Lib.ArrayBuilder;
+import Lib.BCrypt;
 import java.sql.*;
 import javax.swing.JOptionPane;
 
@@ -29,26 +31,24 @@ public class UserModel {
         this.accessLevel = builder.accessLevel != null ? builder.accessLevel : "USER"; 
     }
     
-    public boolean login(String username, String password) {
-        if (con == null) {
-            JOptionPane.showMessageDialog(null, "Koneksi database null.");
-            return false;
-        }
+    public boolean login(String username, String plainPassword) {
+        DBQueryBuilder qb = new DBQueryBuilder();
+        ArrayBuilder[] conditions = {
+            new ArrayBuilder("username", username)
+        };
 
-        String query = "SELECT * FROM users WHERE username = ? AND password = ?";
+        String query = qb.select("*").from("users").where(conditions).buildQuery();
 
         try (PreparedStatement ps = con.prepareStatement(query)) {
-            ps.setString(1, username);
-            ps.setString(2, password);
-
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    JOptionPane.showMessageDialog(null, "Login berhasil! Selamat datang, " + username);
-                    return true;
-                } else {
-                    JOptionPane.showMessageDialog(null, "Login gagal! Username atau password salah.");
-                    return false;
+                    String hashedPassword = rs.getString("password");
+
+                    if (BCrypt.checkpw(plainPassword, hashedPassword)) {
+                        return true;
+                    }
                 }
+                return false;
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null,
@@ -60,11 +60,6 @@ public class UserModel {
     }
 
     public boolean insertUser() {
-        if (con == null) {
-            JOptionPane.showMessageDialog(null, "Koneksi database null.");
-            return false;
-        }
-
         String query = "INSERT INTO users (nik, name, birth_date, age_category, gender, phone_number, address, username, password, access_level) "
                      + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -98,11 +93,6 @@ public class UserModel {
     }
 
     public void selectAllUsers() {
-        if (con == null) {
-            JOptionPane.showMessageDialog(null, "Koneksi database tidak tersedia.");
-            return;
-        }
-
         String query = "SELECT nik, name, birth_date, age_category, gender, phone_number, address FROM users";
 
         try {

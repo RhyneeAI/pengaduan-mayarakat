@@ -1,11 +1,17 @@
 package View;
 
+import Controller.UserController;
+import Helper.MessageHelper;
+import Lib.ArrayBuilder;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class Login extends JFrame {
     public Login() {
@@ -30,24 +36,29 @@ public class Login extends JFrame {
 
         // Panel kiri untuk gambar
         JLabel imageLabel = new JLabel();
-        imageLabel.setPreferredSize(new Dimension(width / 3, height));
+        imageLabel.setPreferredSize(new Dimension(width / 2, height));
         imageLabel.setHorizontalAlignment(JLabel.CENTER);
-        imageLabel.setIcon(new ImageIcon("assets/login_photo.png")); // Ganti path sesuai gambar Anda
+        
+        ImageIcon icon = new ImageIcon("src/Assets/sugih-mukti-ori.png");
+        imageLabel.setBorder(BorderFactory.createEmptyBorder(30, 5, 0, 0));
+        Image scaledImage = icon.getImage().getScaledInstance(width / 3, height - 160, Image.SCALE_AREA_AVERAGING);
+        imageLabel.setIcon(new ImageIcon(scaledImage));
         mainPanel.add(imageLabel, BorderLayout.WEST);
 
         // Panel kanan untuk form login
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(4, 4, 4, 4);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Komponen form
-        JLabel lblUsername = new JLabel("Username:");
+        JLabel lblUsername = new JLabel("Username :");
         JTextField txtUsername = new JTextField(15);
 
-        JLabel lblPassword = new JLabel("Password:");
+        JLabel lblPassword = new JLabel("Password :");
         JPasswordField txtPassword = new JPasswordField(15);
 
+        JLabel breakComp = new JLabel(" ");
         JButton btnLogin = new JButton("Login");
 
         JLabel lblRegister = new JLabel("<html><u>Belum mempunyai akun? Register!</u></html>");
@@ -62,9 +73,13 @@ public class Login extends JFrame {
         formPanel.add(txtUsername, gbc);
         gbc.gridy++;
         formPanel.add(lblPassword, gbc);
-        gbc.gridy++;
+        gbc.gridy++; 
         formPanel.add(txtPassword, gbc);
-        gbc.gridy++;
+        gbc.gridy++; 
+        formPanel.add(breakComp, gbc);
+        gbc.gridy++; 
+        formPanel.add(btnLogin, gbc);
+        gbc.gridy++; 
         formPanel.add(btnLogin, gbc);
         gbc.gridy++;
         formPanel.add(lblRegister, gbc);
@@ -73,11 +88,19 @@ public class Login extends JFrame {
         btnLogin.addActionListener(e -> {
             String username = txtUsername.getText();
             String password = new String(txtPassword.getPassword());
+            
+            UserController userController = new UserController();
+            
+            List<ArrayBuilder> userdata = new ArrayList<>();
+            userdata.add(new ArrayBuilder("username", username));
+            userdata.add(new ArrayBuilder("password", password));
+            
+            Map<String, Object> result = userController.login(userdata);
+            MessageHelper.showMessageFromResult(result);
 
-            if (username.equals("admin") && password.equals("password123")) {
-                JOptionPane.showMessageDialog(this, "Login Berhasil!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Username atau Password salah!");
+            if (Boolean.TRUE.equals(result.get("status"))) {
+//                this.dispose(); 
+//                new LoginForm().setVisible(true); 
             }
         });
 

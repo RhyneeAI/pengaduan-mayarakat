@@ -147,7 +147,7 @@ public class DBQueryBuilder {
     }
 
     // Build final query
-    private String buildQuery() {
+    public String buildQuery() {
         if (query.length() > 0) {
             return query.toString(); // For insert, update, delete
         }

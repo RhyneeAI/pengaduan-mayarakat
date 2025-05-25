@@ -696,9 +696,9 @@
                       <Component id="lblAddress1" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jpPassword2" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblPassword3" alignment="3" max="32767" attributes="0"/>
+                      <Component id="lblPassword3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="lblPassword2" max="32767" attributes="0"/>
