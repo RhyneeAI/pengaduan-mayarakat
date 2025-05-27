@@ -8,6 +8,7 @@ import Model.DBQueryBuilder;
 import Helper.PasswordHelper;
 import Helper.ValidationHelper;
 import Lib.ArrayBuilder;
+import Lib.Session;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -85,6 +86,15 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
         result.put("status", r);
         result.put("message", r ? "Registrasi berhasil!" : "Registrasi gagal.");
+        return result;
+    }
+    
+    public Map<String, Object> logout() {
+        Session.clear();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", true);
+        result.put("message", "Logout berhasil!");
         return result;
     }
 

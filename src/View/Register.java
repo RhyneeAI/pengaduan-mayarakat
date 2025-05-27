@@ -214,7 +214,7 @@ public class Register extends JFrame {
 
             if (Boolean.TRUE.equals(result.get("status"))) {
                 this.dispose();
-                new Login().setVisible(true);
+                new Dashboard().setVisible(true);
             }
         });
 
