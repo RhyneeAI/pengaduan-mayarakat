@@ -37,73 +37,55 @@ public class UserController {
         Boolean r = user.login(username, password);
         
         Map<String, Object> result = new HashMap<>();
-        result.put("status", true);
+        result.put("status", r);
         result.put("message", r ? "Login berhasil! Selamat datang, " + username : "Login Gagal! Username atau password salah.");
         return result;
     }
 
-    public Map<String, Object> store(String[] userData) {
-        Map<String, Object> result = new HashMap<>();
+    public Map<String, Object> register(List<ArrayBuilder> userdata) {
+        Map<String, String> userMap = new HashMap<>();
+        for (ArrayBuilder ab : userdata) {
+            userMap.put(ab.key, ab.value);
+        }
 
-        String[] fieldNames = {
-            "NIK", "Nama", "Tanggal Lahir", "Kategori Umur", 
-            "Jenis Kelamin", "Nomor Telepon", "Alamat", "Password"
-        };
-
-        for (int i = 0; i < userData.length; i++) {
-            if (userData[i] == null || userData[i].trim().isEmpty()) {
-                result.put("status", false);
-                result.put("message", fieldNames[i] + " harus diisi.");
-                return result;
+        // Hash password
+        for (ArrayBuilder ab : userdata) {
+            if (ab.key.equals("password")) {
+                ab.value = PasswordHelper.hashPassword(ab.value);
             }
-            
-            System.out.println(userData[i]);
+            userMap.put(ab.key, ab.value);
+        }
+
+        // Cek field wajib
+        List<String> requiredFields = List.of("nik", "name", "birth_date", "age_category", "gender", "phone_number", "address", "username", "password");
+        Map<String, Object> validationResult = ValidationHelper.validateFields(userMap, requiredFields);
+
+        if (validationResult != null) {
+            return validationResult;
         }
         
-        if (new UserModel().isNikExists(userData[0])) {
+        UserModel userModel = new UserModel();
+        if (userModel.getUserByNIK(userMap.get("nik")) != null) {
+            Map<String, Object> result = new HashMap<>();
             result.put("status", false);
             result.put("message", "NIK sudah terdaftar.");
             return result;
         }
-        
-        PasswordHelper pw = new PasswordHelper();
-        String generate_pw = pw.hashPassword(userData[8]); 
 
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("nik", userData[0]);
-        userMap.put("name", userData[1]);
-        userMap.put("birthDate", userData[2]);
-        userMap.put("ageCategory", userData[3]);
-        userMap.put("gender", userData[4]);
-        userMap.put("phoneNumber", userData[5]);
-        userMap.put("address", userData[6]);
-        userMap.put("username", userData[7]);
-        userMap.put("password", generate_pw);
-        
-//        DBQueryBuilder qb = new DBQueryBuilder();
-//        String query = qb.insertInto("users", userData).build();
-
-        UserModel user = new UserModel.Builder()
-            .nik(userData[0])
-            .name(userData[1])
-            .birthDate(userData[2])
-            .ageCategory(userData[3])
-            .gender(userData[4])
-            .phoneNumber(userData[5])
-            .address(userData[6])
-            .username(userData[7])
-            .password(generate_pw)
-            .build();
-
-        boolean isInserted = user.insertUser(); 
-        if (isInserted) {
-            result.put("status", true);
-            result.put("message", "Berhasil mendaftar!");
-        } else {
+        // ✅ Cek username sudah ada atau belum
+        if (userModel.getUserByUsername(userMap.get("username")) != null) {
+            Map<String, Object> result = new HashMap<>();
             result.put("status", false);
-            result.put("message", "Gagal menyimpan ke database.");
+            result.put("message", "Username sudah digunakan.");
+            return result;
         }
 
+        Boolean r = userModel.register(userdata);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", r);
+        result.put("message", r ? "Registrasi berhasil!" : "Registrasi gagal.");
         return result;
     }
+
 }

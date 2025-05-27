@@ -3,6 +3,7 @@ package View;
 import Controller.UserController;
 import Helper.MessageHelper;
 import Lib.ArrayBuilder;
+import Lib.Session;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
@@ -39,9 +40,9 @@ public class Login extends JFrame {
         imageLabel.setPreferredSize(new Dimension(width / 2, height));
         imageLabel.setHorizontalAlignment(JLabel.CENTER);
         
-        ImageIcon icon = new ImageIcon("src/Assets/sugih-mukti-ori.png");
+        ImageIcon icon = new ImageIcon("src/Assets/sugih-mukti.png");
         imageLabel.setBorder(BorderFactory.createEmptyBorder(30, 5, 0, 0));
-        Image scaledImage = icon.getImage().getScaledInstance(width / 3, height - 160, Image.SCALE_AREA_AVERAGING);
+        Image scaledImage = icon.getImage().getScaledInstance(width / 3 - 30, height - 160, Image.SCALE_AREA_AVERAGING);
         imageLabel.setIcon(new ImageIcon(scaledImage));
         mainPanel.add(imageLabel, BorderLayout.WEST);
 
@@ -89,25 +90,27 @@ public class Login extends JFrame {
             String username = txtUsername.getText();
             String password = new String(txtPassword.getPassword());
             
-            UserController userController = new UserController();
-            
             List<ArrayBuilder> userdata = new ArrayList<>();
             userdata.add(new ArrayBuilder("username", username));
             userdata.add(new ArrayBuilder("password", password));
             
+            UserController userController = new UserController();
             Map<String, Object> result = userController.login(userdata);
             MessageHelper.showMessageFromResult(result);
 
             if (Boolean.TRUE.equals(result.get("status"))) {
-//                this.dispose(); 
-//                new LoginForm().setVisible(true); 
+                System.out.println(Session.get("name"));
+                this.dispose(); 
+                new LoginForm().setVisible(true); 
             }
         });
 
         // Event klik "Register"
         lblRegister.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                JOptionPane.showMessageDialog(null, "Arahkan ke halaman registrasi.");
+                dispose();
+                new Register().setVisible(true);
             }
         });
 

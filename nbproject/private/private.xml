@@ -4,14 +4,14 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Controller/UserController.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Helper/ValidationHelper.java</file>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/LoginForm.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Lib/BCrypt.java</file>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Model/DBQueryBuilder.java</file>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/RegisterForm.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Register.java</file>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Login.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Helper/GlobalHelper.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Lib/Session.java</file>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Model/UserModel.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Helper/PasswordHelper.java</file>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Lib/ArrayBuilder.java</file>
         </group>
     </open-files>
