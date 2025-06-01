@@ -1,18 +1,14 @@
 package Model;
 
 import Helper.MessageHelper;
-import Lib.ArrayBuilder;
-import Lib.BCrypt;
-import Lib.Session;
+import Lib.*;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.swing.JOptionPane;
 
 public class UserModel {
     DBConnection db = new DBConnection();
-    private Connection con = db.getConnection();
+    private final Connection con = db.getConnection();
     
     public UserModel() {
         if(con == null) {
@@ -71,11 +67,7 @@ public class UserModel {
             Statement stmt = con.createStatement();
             int result = stmt.executeUpdate(sql);
 
-            if (result > 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return result > 0;
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null,
                 "Error saat login: " + e.getMessage() +

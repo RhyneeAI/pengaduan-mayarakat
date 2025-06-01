@@ -60,7 +60,8 @@ public class Login extends JFrame {
         JPasswordField txtPassword = new JPasswordField(15);
 
         JLabel breakComp = new JLabel(" ");
-        JButton btnLogin = new JButton("Login");
+        JButton btnLogin = new JButton("Login (Enter)");
+        getRootPane().setDefaultButton(btnLogin);
 
         JLabel lblRegister = new JLabel("<html><u>Belum mempunyai akun? Register!</u></html>");
         lblRegister.setForeground(Color.BLUE);
@@ -101,7 +102,7 @@ public class Login extends JFrame {
             if (Boolean.TRUE.equals(result.get("status"))) {
                 System.out.println(Session.get("name"));
                 this.dispose(); 
-                new LoginForm().setVisible(true); 
+                new Dashboard().setVisible(true); 
             }
         });
 

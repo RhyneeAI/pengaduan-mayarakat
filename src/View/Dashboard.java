@@ -1,5 +1,7 @@
 package View;
 
+import View.Content.PengaduanContent;
+
 import com.formdev.flatlaf.FlatLightLaf;
 import Controller.UserController;
 import Helper.MessageHelper;
@@ -13,7 +15,12 @@ public class Dashboard extends JFrame {
     public Dashboard() {
         setTitle("Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1200, 600);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        int width = (int) (screenSize.width * 0.85);
+        int height = (int) (screenSize.height * 0.9);
+
+        setSize(width, height);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
@@ -24,7 +31,7 @@ public class Dashboard extends JFrame {
 
         JLabel titleLabel = new JLabel("Selamat Datang", SwingConstants.CENTER);
         titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         navbar.add(titleLabel, BorderLayout.CENTER);
 
         add(navbar, BorderLayout.NORTH);
@@ -72,10 +79,11 @@ public class Dashboard extends JFrame {
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
         };
+        desktopPane.setBorder(null);
         add(desktopPane, BorderLayout.CENTER);
 
         btnDashboard.addActionListener(e -> showInternal(new DashboardContent()));
-        btnPengaduan.addActionListener(e -> showInternal(new PengaduanContent()));
+        btnPengaduan.addActionListener(e -> showInternal(new PengaduanContent(desktopPane)));
         btnLogout.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(
                 Dashboard.this,
@@ -115,13 +123,13 @@ public class Dashboard extends JFrame {
         frame.setVisible(true);
         desktopPane.add(frame);
         try {
-            frame.setMaximum(true); // agar fullscreen dalam desktopPane
+            frame.setMaximum(true); 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // === Dummy Internal Frames for Content ===
+//    // === Dummy Internal Frames for Content ===
     class DashboardContent extends JInternalFrame {
         public DashboardContent() {
             super("Dashboard", false, false, false, false); // not resizable, not closable, not maximizable, not iconifiable
@@ -131,30 +139,10 @@ public class Dashboard extends JFrame {
         }
     }
 
-    class PengaduanContent extends JInternalFrame {
-        public PengaduanContent() {
-            super("Pengaduan", false, false, false, false);
-            setBounds(0, 0, desktopPane.getWidth(), desktopPane.getHeight());
-            getContentPane().setLayout(new BorderLayout());
-            getContentPane().add(new JLabel("Form atau tabel pengaduan di sini", SwingConstants.CENTER), BorderLayout.CENTER);
-        }
-    }
-
-    // Dummy login for logout redirection
-    class LoginForm extends JFrame {
-        public LoginForm() {
-            setTitle("Login");
-            setSize(300, 150);
-            setLocationRelativeTo(null);
-            setDefaultCloseOperation(EXIT_ON_CLOSE);
-            add(new JLabel("Login Form Placeholder", SwingConstants.CENTER));
-        }
-    }
-
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
-        } catch (Exception e) {
+        } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
 
