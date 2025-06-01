@@ -1,24 +1,37 @@
 package View.Content;
 
+import Controller.PengaduanController;
+import Helper.TimeHelper;
 import Helper.UIHelper;
 import View.Content.Pengaduan.TambahPengaduanForm;
 import com.toedter.calendar.JDateChooser;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.util.Date;
+import java.util.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
 public class PengaduanContent extends JInternalFrame {
     private JTable table;
-    private DefaultTableModel tableModel;
+    private final DefaultTableModel tableModel;
     private JDateChooser dateChooserStart;
     private JDateChooser dateChooserEnd;
-    private JDesktopPane desktopPane;
+    
+    PengaduanController pc = new PengaduanController();
+    TimeHelper th = new TimeHelper();
 
     public PengaduanContent(JDesktopPane desktopPane) {
         super("", false, false, false, false);
-        this.desktopPane = desktopPane;
         Color bgColor = Color.WHITE;
 
         setBorder(null);
@@ -65,6 +78,7 @@ public class PengaduanContent extends JInternalFrame {
         dateChooserStart = new JDateChooser();
         dateChooserStart.getDateEditor().setEnabled(false);
         dateChooserStart.setPreferredSize(new Dimension(150, 25));
+        dateChooserStart.setDate(th.getFirstDayOfMonth());
         panelForm.add(dateChooserStart, gbc);
 
         // Label Tanggal Akhir
@@ -78,6 +92,7 @@ public class PengaduanContent extends JInternalFrame {
         dateChooserEnd = new JDateChooser();
         dateChooserEnd.getDateEditor().setEnabled(false);
         dateChooserEnd.setPreferredSize(new Dimension(150, 25));
+        dateChooserEnd.setDate(th.getDateNow());
         panelForm.add(dateChooserEnd, gbc);
 
         // Tombol Filter
@@ -93,6 +108,13 @@ public class PengaduanContent extends JInternalFrame {
         gbc.gridx = 6;
         gbc.anchor = GridBagConstraints.EAST;
         JButton btnTambah = new JButton("Buat Pengaduan");
+        btnTambah.addActionListener(e -> {
+            TambahPengaduanForm form = new TambahPengaduanForm(desktopPane);
+            desktopPane.removeAll();
+            desktopPane.repaint();
+            desktopPane.add(form);
+            form.setVisible(true);
+        });
         panelForm.add(btnTambah, gbc);
 
         // === ROW 3: Table ===
@@ -102,20 +124,18 @@ public class PengaduanContent extends JInternalFrame {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
 
-        tableModel = new DefaultTableModel(new String[]{"No", "Tanggal", "Judul", "Kategori", "Status", "Aksi"}, 0) {
+        tableModel = new DefaultTableModel(new String[]{"No", "Tanggal", "Judul", "Kategori", "Status", "Aksi", "ID"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;
+                return column == 5; 
             }
         };
-        table = new JTable(tableModel);
-        table.setRowHeight(20);
+        loadDataTable();
 
         JScrollPane tableScrollPane = new JScrollPane(table);
         tableScrollPane.setBorder(null);
         tableScrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panelForm.add(tableScrollPane, gbc);
-
 
         // === Wrapper Panel ===
         JPanel wrapperPanel = new JPanel(new GridBagLayout());
@@ -142,8 +162,159 @@ public class PengaduanContent extends JInternalFrame {
 
         UIHelper.syncInternalFrameWithDesktop(this, desktopPane, outerPanel, wrapperPanel);
     }
+    
+    public final void loadDataTable() {
+        List<Map<String, Object>> pengaduanList = pc.getPengaduan();
 
-    private Date getFirstDayOfMonth(Date date) {
-        return new Date(date.getYear(), date.getMonth(), 1);
+        tableModel.setRowCount(0); // Reset
+        int no = 1;
+
+        for (Map<String, Object> row : pengaduanList) {
+            String title = row.get("title").toString();
+            if (title.length() > 15) {
+                title = title.substring(0, 15) + "...";
+            }
+
+            Object[] rowData = new Object[]{
+                no++,
+                TimeHelper.humanizeDate((Date) row.get("date")),
+                title,
+                row.get("category_name"),
+                row.get("status"),
+                "Edit",
+                row.get("id") // kolom ke-6 (index 6), disembunyikan
+            };
+            tableModel.addRow(rowData);
+        }
+
+        // Inisialisasi tabel setelah isi data
+        table = new JTable(tableModel);
+
+        table.setRowHeight(24);
+
+        // Center kolom "No"
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // No
+
+        // Kolom "Status" pakai renderer warna
+        table.getColumnModel().getColumn(4).setCellRenderer(new StatusCellRenderer());
+
+        // Kolom "Aksi" pakai tombol
+        table.getColumnModel().getColumn(5).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(5).setCellEditor(new ButtonEditor(new JCheckBox()));
+
+        // Sembunyikan kolom ID (kolom ke-6 / index 6)
+        table.removeColumn(table.getColumnModel().getColumn(6));
+    }
+    
+    // Status cell renderer (warna background biru muda & teks tengah)
+    class StatusCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus,
+                                                       int row, int column) {
+            JLabel label = new JLabel(value.toString(), SwingConstants.CENTER);
+            label.setOpaque(true);
+            label.setForeground(Color.WHITE); 
+            String status = value.toString().toLowerCase(); 
+
+            switch (status) {
+                case "new" -> label.setBackground(new Color(23, 162, 184)); // Bootstrap bg-info
+                case "process" -> {
+                    label.setBackground(new Color(255, 193, 7)); // Bootstrap bg-warning
+                    label.setForeground(Color.BLACK); // teks hitam di warna terang
+                }
+                case "accepted" -> label.setBackground(new Color(40, 167, 69)); // Bootstrap bg-success
+                case "rejected" -> label.setBackground(new Color(220, 53, 69)); // Bootstrap bg-danger
+                default -> label.setBackground(Color.LIGHT_GRAY); // default warna
+            }
+
+            return label;
+        }
+    }
+
+    // Button Renderer (tampilkan tombol dengan padding di tengah cell)
+    class ButtonRenderer extends JPanel implements TableCellRenderer {
+        private final JButton button;
+
+        public ButtonRenderer() {
+            setLayout(new GridBagLayout()); // gridbag buat centering
+            button = new JButton("Edit");
+            button.setPreferredSize(new Dimension(80, 20));
+            add(button);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus,
+                                                       int row, int column) {
+            button.setText((value == null) ? "Edit" : value.toString());
+            return this;
+        }
+    }
+
+    class ButtonEditor extends DefaultCellEditor {
+        protected JButton button;
+        private String label;
+        private boolean clicked;
+        private int row;
+
+        public ButtonEditor(JCheckBox checkBox) {
+            super(checkBox);
+            button = new JButton();
+            button.setOpaque(true);
+            button.setMargin(new Insets(2, 8, 2, 8)); // agar tombol tidak full 100% lebar
+            button.setFont(button.getFont().deriveFont(Font.PLAIN, 12));
+            button.addActionListener(e -> fireEditingStopped());
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                                                     boolean isSelected, int row, int column) {
+            this.row = row;
+            clicked = true;
+
+            int modelRow = table.convertRowIndexToModel(row);
+            Object idObj = table.getModel().getValueAt(modelRow, 6); // kolom id (hidden)
+            button.putClientProperty("id", idObj);
+
+            label = (value == null) ? "Edit" : value.toString();
+            button.setText(label);
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            if (clicked) {
+                Object idObj = button.getClientProperty("id");
+                if (idObj != null) {
+                    String id = idObj.toString();
+                    Map<String, Object> data = pc.getPengaduanById(id);
+                    if (data != null) {
+                        StringBuilder info = new StringBuilder();
+                        info.append("ID: ").append(data.get("id")).append("\n");
+                        info.append("Date: ").append(data.get("date")).append("\n");
+                        info.append("Title: ").append(data.get("title")).append("\n");
+                        info.append("Category: ").append(data.get("category_name")).append("\n");
+                        info.append("Status: ").append(data.get("status")).append("\n");
+
+                        JOptionPane.showMessageDialog(button, info.toString(), "Detail Pengaduan", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(button, "Data tidak ditemukan untuk ID: " + id, "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(button, "ID tidak tersedia", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            clicked = false;
+            return label;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            clicked = false;
+            return super.stopCellEditing();
+        }
     }
 }

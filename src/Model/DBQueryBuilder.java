@@ -63,6 +63,11 @@ public class DBQueryBuilder {
         where.append(whereClause.toString()).append(" ");
         return this;
     }
+    
+    public DBQueryBuilder orderBy(String field, String orderType) {
+        order_by.append("ORDER BY ").append(field).append(" ").append(orderType);
+        return this;
+    }
 
     // INSERT
     public DBQueryBuilder insert(String table, ArrayBuilder[] data) {

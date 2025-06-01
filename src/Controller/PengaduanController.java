@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PengaduanController {
+    PengaduanModel pm = new PengaduanModel();
     public String[] getKategoriOptions() {
-        PengaduanModel pm = new PengaduanModel();
         List<Map<String, Object>> kategoriList = pm.getKategoriPengaduan();
 
         String[] kategoriOptions = new String[kategoriList.size()];
@@ -16,5 +16,12 @@ public class PengaduanController {
 
         return kategoriOptions;
     }
-
+    
+    public List<Map<String, Object>> getPengaduan() {
+        return pm.getPengaduan();
+    }
+    
+    public Map<String, Object> getPengaduanById(String id) {
+        return pm.getPengaduanById(id);
+    }
 }

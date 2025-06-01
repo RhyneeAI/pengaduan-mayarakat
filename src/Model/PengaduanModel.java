@@ -23,16 +23,34 @@ public class PengaduanModel {
                  .get(); 
     }
     
-    public Map<String, Object> getUserByUsername(String username) {
+    // Ambil semua pengaduan
+    public List<Map<String, Object>> getPengaduan() {
         DBQueryBuilder qb = new DBQueryBuilder();
         ArrayBuilder[] condition = {
-            new ArrayBuilder("username", username)
+            new ArrayBuilder("c.user_id", Session.get("id"))
         };
 
-        return qb.select("*")
-                 .from("users")
-                 .where(condition)
-                 .first();
+        qb.select("c.id, c.date, c.title, cc.category_name, c.status")
+          .from("complaints as c")
+          .where(condition)
+          .leftJoin("complaint_categories as cc", "c.category_id = cc.id");
+
+        return qb.get();
     }
 
+    // Ambil pengaduan berdasarkan id (single row)
+    public Map<String, Object> getPengaduanById(String id) {
+        DBQueryBuilder qb = new DBQueryBuilder();
+        ArrayBuilder[] condition = {
+            new ArrayBuilder("c.id", id),
+            new ArrayBuilder("c.user_id", Session.get("id"))
+        };
+
+        qb.select("c.id, c.date, c.title, cc.category_name, c.status")
+          .from("complaints as c")
+          .leftJoin("complaint_categories as cc", "c.category_id = cc.id")
+          .where(condition);
+
+        return qb.first();
+    }
 }

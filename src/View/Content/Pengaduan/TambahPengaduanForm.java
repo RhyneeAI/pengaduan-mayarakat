@@ -23,7 +23,7 @@ public class TambahPengaduanForm extends JInternalFrame {
         panelForm.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         panelForm.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 2, 10, 2);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
 
