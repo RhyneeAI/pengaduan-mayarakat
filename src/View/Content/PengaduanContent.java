@@ -1,6 +1,7 @@
 package View.Content;
 
 import Controller.PengaduanController;
+import Helper.ColorHelper;
 import Helper.TimeHelper;
 import Helper.UIHelper;
 import View.Content.Pengaduan.TambahPengaduanForm;
@@ -169,27 +170,28 @@ public class PengaduanContent extends JInternalFrame {
         tableModel.setRowCount(0); // Reset
         int no = 1;
 
-        for (Map<String, Object> row : pengaduanList) {
-            String title = row.get("title").toString();
-            if (title.length() > 15) {
-                title = title.substring(0, 15) + "...";
-            }
+        if (pengaduanList != null && !pengaduanList.isEmpty()) {
+            for (Map<String, Object> row : pengaduanList) {
+                String title = row.get("title").toString();
+                if (title.length() > 15) {
+                    title = title.substring(0, 15) + "...";
+                }
 
-            Object[] rowData = new Object[]{
-                no++,
-                TimeHelper.humanizeDate((Date) row.get("date")),
-                title,
-                row.get("category_name"),
-                row.get("status"),
-                "Edit",
-                row.get("id") // kolom ke-6 (index 6), disembunyikan
-            };
-            tableModel.addRow(rowData);
+                Object[] rowData = new Object[]{
+                    no++,
+                    TimeHelper.humanizeDate((Date) row.get("date")),
+                    title,
+                    row.get("category_name"),
+                    row.get("status"),
+                    "Edit",
+                    row.get("id") // kolom ke-6 (index 6), disembunyikan
+                };
+                tableModel.addRow(rowData);
+            }
         }
 
         // Inisialisasi tabel setelah isi data
         table = new JTable(tableModel);
-
         table.setRowHeight(24);
 
         // Center kolom "No"
@@ -206,6 +208,18 @@ public class PengaduanContent extends JInternalFrame {
 
         // Sembunyikan kolom ID (kolom ke-6 / index 6)
         table.removeColumn(table.getColumnModel().getColumn(6));
+        table.setShowGrid(true);
+        table.setBackground(Color.WHITE);
+        table.setFillsViewportHeight(true); 
+        
+        // Atur lebar kolom
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);  // No
+        table.getColumnModel().getColumn(1).setPreferredWidth(100); // Date
+        table.getColumnModel().getColumn(2).setPreferredWidth(200); // Title
+        table.getColumnModel().getColumn(3).setPreferredWidth(150); // Category
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Status
+        table.getColumnModel().getColumn(5).setPreferredWidth(100); // Aksi (Edit button)
+
     }
     
     // Status cell renderer (warna background biru muda & teks tengah)
@@ -214,32 +228,33 @@ public class PengaduanContent extends JInternalFrame {
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
-            JLabel label = new JLabel(value.toString(), SwingConstants.CENTER);
+
+            JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            label.setHorizontalAlignment(SwingConstants.CENTER);
             label.setOpaque(true);
-            label.setForeground(Color.WHITE); 
-            String status = value.toString().toLowerCase(); 
+            label.setBackground(Color.WHITE);
+
+            String status = value.toString().toLowerCase();
 
             switch (status) {
-                case "new" -> label.setBackground(new Color(23, 162, 184)); // Bootstrap bg-info
-                case "process" -> {
-                    label.setBackground(new Color(255, 193, 7)); // Bootstrap bg-warning
-                    label.setForeground(Color.BLACK); // teks hitam di warna terang
-                }
-                case "accepted" -> label.setBackground(new Color(40, 167, 69)); // Bootstrap bg-success
-                case "rejected" -> label.setBackground(new Color(220, 53, 69)); // Bootstrap bg-danger
-                default -> label.setBackground(Color.LIGHT_GRAY); // default warna
+                case "new" -> label.setForeground(ColorHelper.INFO);
+                case "process" -> label.setForeground(ColorHelper.WARNING);
+                case "accepted" -> label.setForeground(ColorHelper.SUCCESS);
+                case "rejected" -> label.setForeground(ColorHelper.DANGER);
+                default -> label.setForeground(ColorHelper.PRIMARY);
             }
 
             return label;
         }
     }
 
+
     // Button Renderer (tampilkan tombol dengan padding di tengah cell)
-    class ButtonRenderer extends JPanel implements TableCellRenderer {
+    public class ButtonRenderer extends JPanel implements TableCellRenderer {
         private final JButton button;
 
         public ButtonRenderer() {
-            setLayout(new GridBagLayout()); // gridbag buat centering
+            setLayout(new GridBagLayout()); // centering
             button = new JButton("Edit");
             button.setPreferredSize(new Dimension(80, 20));
             add(button);
@@ -249,10 +264,17 @@ public class PengaduanContent extends JInternalFrame {
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
+            this.setOpaque(true);
+            this.setBackground(Color.WHITE);
+
+            // Set border manual agar terlihat seperti grid
+            this.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, table.getGridColor()));
+
             button.setText((value == null) ? "Edit" : value.toString());
             return this;
         }
     }
+
 
     class ButtonEditor extends DefaultCellEditor {
         protected JButton button;
@@ -275,14 +297,17 @@ public class PengaduanContent extends JInternalFrame {
             this.row = row;
             clicked = true;
 
-            int modelRow = table.convertRowIndexToModel(row);
-            Object idObj = table.getModel().getValueAt(modelRow, 6); // kolom id (hidden)
+            // Tambahkan border agar terlihat grid-nya
+            button.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, table.getGridColor()));
+
+            Object idObj = table.getModel().getValueAt(table.convertRowIndexToModel(row), 6);
             button.putClientProperty("id", idObj);
 
             label = (value == null) ? "Edit" : value.toString();
             button.setText(label);
             return button;
         }
+
 
         @Override
         public Object getCellEditorValue() {

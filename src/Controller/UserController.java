@@ -4,12 +4,10 @@ import Model.UserModel;
 import java.util.HashMap;
 import java.util.Map;
 import View.RegisterForm;
-import Model.DBQueryBuilder;
 import Helper.PasswordHelper;
 import Helper.ValidationHelper;
 import Lib.ArrayBuilder;
 import Lib.Session;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class UserController {

@@ -1,15 +1,32 @@
 package View.Content.Pengaduan;
-import Controller.PengaduanController;
-import Helper.TimeHelper;
-import Helper.UIHelper;
 import com.toedter.calendar.JDateChooser;
 
+import Lib.ArrayBuilder;
+import Helper.ColorHelper;
+import Helper.RoundedButton;
+import Helper.TimeHelper;
+import Helper.UIHelper;
+import Controller.PengaduanController;
+import Helper.MessageHelper;
+import Lib.Session;
+import View.Content.PengaduanContent;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
 import javax.swing.*;
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class TambahPengaduanForm extends JInternalFrame {
-
     public TambahPengaduanForm(JDesktopPane desktopPane) {
         super("", false, false, false, false);
         setBorder(null);
@@ -49,10 +66,10 @@ public class TambahPengaduanForm extends JInternalFrame {
         gbc.gridx = 0;
         panelForm.add(judul, gbc);
 
-        JTextField tJudul = new JTextField();
+        JTextField txtJudul = new JTextField();
         gbc.gridx = 1;
         gbc.gridwidth = 4;
-        panelForm.add(tJudul, gbc);
+        panelForm.add(txtJudul, gbc);
 
         // === Row 3: Tanggal & Kategori
         JLabel tanggal = new JLabel("Tanggal");
@@ -92,14 +109,23 @@ public class TambahPengaduanForm extends JInternalFrame {
         gbc.gridx = 0;
         panelForm.add(isi, gbc);
 
-        JTextArea tIsi = new JTextArea(4, 20);
-        JScrollPane scrollIsi = new JScrollPane(tIsi);
+        JTextArea txtaIsi = new JTextArea(4, 20);
+        JScrollPane scrollIsi = new JScrollPane(txtaIsi);
         gbc.gridx = 1;
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.BOTH;
         panelForm.add(scrollIsi, gbc);
+        
+        // === Row 5: Public Checkbox
+        gbc.gridy++;
+        gbc.gridx = 1;
+//        gbc.gridwidth = 1;
 
-        // === Row 5: Spacer
+        JCheckBox chcbPublic = new JCheckBox("Tampilkan ke Publik?");
+        chcbPublic.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        panelForm.add(chcbPublic, gbc);
+
+        // === Row 6: Spacer
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 5;
@@ -108,8 +134,46 @@ public class TambahPengaduanForm extends JInternalFrame {
 
         // === Row 6: Button di kanan bawah
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnPanel.add(new JButton("Simpan"));
-        btnPanel.add(new JButton("Kembali"));
+        RoundedButton btnKembali = new RoundedButton("Kembali");
+        btnKembali.setBackground(ColorHelper.SECONDARY);
+        btnKembali.setForeground(ColorHelper.getContrastColor(ColorHelper.SECONDARY));
+        btnKembali.addActionListener(e -> {
+            PengaduanContent pcon = new PengaduanContent(desktopPane);
+            desktopPane.removeAll();
+            desktopPane.repaint();
+            desktopPane.add(pcon);
+            pcon.setVisible(true);
+        });
+        btnPanel.add(btnKembali);
+
+        RoundedButton btnSimpan = new RoundedButton("Simpan");
+        btnSimpan.setBackground(ColorHelper.SUCCESS);
+        btnSimpan.setForeground(ColorHelper.getContrastColor(ColorHelper.SUCCESS));
+        btnSimpan.addActionListener(e -> {
+            List<ArrayBuilder> data = new ArrayList<>();
+            String tanggalPengaduan = dcTanggal.getDate() == null ? "" : new java.text.SimpleDateFormat("yyyy-MM-dd").format(dcTanggal.getDate());
+
+            data.add(new ArrayBuilder("title", txtJudul.getText()));
+            data.add(new ArrayBuilder("date", tanggalPengaduan));
+            data.add(new ArrayBuilder("body", txtaIsi.getText()));
+            data.add(new ArrayBuilder("category", (String) cbKategori.getSelectedItem()));
+            data.add(new ArrayBuilder("status", "New"));
+            data.add(new ArrayBuilder("is_public", chcbPublic.isSelected() ? "1" : "0"));
+            data.add(new ArrayBuilder("user_id", Session.get("id")));
+            
+            Map<String, Object> result = pc.setPengaduan(data);
+            MessageHelper.showMessageFromResult(result);
+
+            if (Boolean.TRUE.equals(result.get("status"))) {
+                PengaduanContent pcon = new PengaduanContent(desktopPane);
+                desktopPane.removeAll();
+                desktopPane.repaint();
+                desktopPane.add(pcon);
+                pcon.setVisible(true);
+            }
+        });
+        btnPanel.add(btnSimpan);
+
         btnPanel.setBackground(Color.WHITE);
         gbc.gridy++;
         gbc.gridx = 4;  // kolom terakhir

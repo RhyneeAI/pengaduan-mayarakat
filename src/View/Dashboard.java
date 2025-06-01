@@ -82,8 +82,20 @@ public class Dashboard extends JFrame {
         desktopPane.setBorder(null);
         add(desktopPane, BorderLayout.CENTER);
 
-        btnDashboard.addActionListener(e -> showInternal(new DashboardContent()));
-        btnPengaduan.addActionListener(e -> showInternal(new PengaduanContent(desktopPane)));
+        btnDashboard.addActionListener(e -> {
+            DashboardContent dcon = new DashboardContent();
+            desktopPane.removeAll();
+            desktopPane.repaint();
+            desktopPane.add(dcon);
+            dcon.setVisible(true);
+        });
+        btnPengaduan.addActionListener(e -> {
+            PengaduanContent pcon = new PengaduanContent(desktopPane);
+            desktopPane.removeAll();
+            desktopPane.repaint();
+            desktopPane.add(pcon);
+            pcon.setVisible(true);
+        });
         btnLogout.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(
                 Dashboard.this,
@@ -142,6 +154,8 @@ public class Dashboard extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
+            UIManager.put("Table.showGrid", true);
+//            UIManager.put("Table.gridColor", Color.LIGHT_GRAY); 
         } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }

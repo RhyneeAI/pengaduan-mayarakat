@@ -58,7 +58,7 @@ public class UserModel {
         }
     }
     
-     public boolean register(List<ArrayBuilder> data) {
+    public boolean register(List<ArrayBuilder> data) {
         try {
             DBQueryBuilder builder = new DBQueryBuilder();
             builder.insert("users", data.toArray(new ArrayBuilder[0]));

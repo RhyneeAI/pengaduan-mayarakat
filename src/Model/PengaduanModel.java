@@ -4,6 +4,7 @@ import Helper.MessageHelper;
 import Lib.*;
 import java.sql.*;
 import java.util.*;
+import javax.swing.JOptionPane;
 
 public class PengaduanModel {
     DBConnection db = new DBConnection();
@@ -32,8 +33,9 @@ public class PengaduanModel {
 
         qb.select("c.id, c.date, c.title, cc.category_name, c.status")
           .from("complaints as c")
-          .where(condition)
-          .leftJoin("complaint_categories as cc", "c.category_id = cc.id");
+//          .where(condition)
+          .leftJoin("complaint_categories as cc", "c.category_id = cc.id")
+          .orderBy("id", "DESC");
 
         return qb.get();
     }
@@ -52,5 +54,37 @@ public class PengaduanModel {
           .where(condition);
 
         return qb.first();
+    }
+    
+    public Map<String, Object> getPengaduanCategory(String category_name) {
+        DBQueryBuilder qb = new DBQueryBuilder();
+        ArrayBuilder[] condition = {
+            new ArrayBuilder("category_name", category_name),
+        };
+
+        qb.select("id")
+          .from("complaint_categories")
+          .where(condition);
+
+        return qb.first();
+    } 
+    
+    public boolean insert(List<ArrayBuilder> data) {
+        try {
+            DBQueryBuilder builder = new DBQueryBuilder();
+            builder.insert("complaints", data.toArray(new ArrayBuilder[0]));
+
+            String sql = builder.buildQuery(); 
+            Statement stmt = con.createStatement();
+            int result = stmt.executeUpdate(sql);
+
+            return result > 0;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null,
+                "Error saat login: " + e.getMessage() +
+                "\nSQLState: " + e.getSQLState() +
+                "\nErrorCode: " + e.getErrorCode());
+            return false;
+        }
     }
 }
