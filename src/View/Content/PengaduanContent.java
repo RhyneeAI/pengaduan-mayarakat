@@ -4,6 +4,7 @@ import Controller.PengaduanController;
 import Helper.ColorHelper;
 import Helper.TimeHelper;
 import Helper.UIHelper;
+import View.Content.Pengaduan.EditPengaduanForm;
 import View.Content.Pengaduan.TambahPengaduanForm;
 import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
@@ -27,12 +28,14 @@ public class PengaduanContent extends JInternalFrame {
     private final DefaultTableModel tableModel;
     private JDateChooser dateChooserStart;
     private JDateChooser dateChooserEnd;
+    public JDesktopPane desktopPane;
     
     PengaduanController pc = new PengaduanController();
     TimeHelper th = new TimeHelper();
 
     public PengaduanContent(JDesktopPane desktopPane) {
         super("", false, false, false, false);
+        this.desktopPane = desktopPane;
         Color bgColor = Color.WHITE;
 
         setBorder(null);
@@ -204,7 +207,7 @@ public class PengaduanContent extends JInternalFrame {
 
         // Kolom "Aksi" pakai tombol
         table.getColumnModel().getColumn(5).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(5).setCellEditor(new ButtonEditor(new JCheckBox()));
+        table.getColumnModel().getColumn(5).setCellEditor(new ButtonEditor(new JCheckBox(), desktopPane));
 
         // Sembunyikan kolom ID (kolom ke-6 / index 6)
         table.removeColumn(table.getColumnModel().getColumn(6));
@@ -219,7 +222,6 @@ public class PengaduanContent extends JInternalFrame {
         table.getColumnModel().getColumn(3).setPreferredWidth(150); // Category
         table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Status
         table.getColumnModel().getColumn(5).setPreferredWidth(100); // Aksi (Edit button)
-
     }
     
     // Status cell renderer (warna background biru muda & teks tengah)
@@ -275,20 +277,22 @@ public class PengaduanContent extends JInternalFrame {
         }
     }
 
-
     class ButtonEditor extends DefaultCellEditor {
         protected JButton button;
         private String label;
         private boolean clicked;
         private int row;
+        JDesktopPane desktopPane;
 
-        public ButtonEditor(JCheckBox checkBox) {
+        public ButtonEditor(JCheckBox checkBox, JDesktopPane desktopPane) {
             super(checkBox);
             button = new JButton();
             button.setOpaque(true);
             button.setMargin(new Insets(2, 8, 2, 8)); // agar tombol tidak full 100% lebar
             button.setFont(button.getFont().deriveFont(Font.PLAIN, 12));
             button.addActionListener(e -> fireEditingStopped());
+            
+            this.desktopPane = desktopPane;
         }
 
         @Override
@@ -313,24 +317,29 @@ public class PengaduanContent extends JInternalFrame {
         public Object getCellEditorValue() {
             if (clicked) {
                 Object idObj = button.getClientProperty("id");
-                if (idObj != null) {
-                    String id = idObj.toString();
-                    Map<String, Object> data = pc.getPengaduanById(id);
-                    if (data != null) {
-                        StringBuilder info = new StringBuilder();
-                        info.append("ID: ").append(data.get("id")).append("\n");
-                        info.append("Date: ").append(data.get("date")).append("\n");
-                        info.append("Title: ").append(data.get("title")).append("\n");
-                        info.append("Category: ").append(data.get("category_name")).append("\n");
-                        info.append("Status: ").append(data.get("status")).append("\n");
-
-                        JOptionPane.showMessageDialog(button, info.toString(), "Detail Pengaduan", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(button, "Data tidak ditemukan untuk ID: " + id, "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(button, "ID tidak tersedia", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+                EditPengaduanForm form = new EditPengaduanForm(desktopPane, idObj.toString());
+                desktopPane.removeAll();
+                desktopPane.repaint();
+                desktopPane.add(form);
+                form.setVisible(true);
+//                if (idObj != null) {
+//                    String id = idObj.toString();
+//                    Map<String, Object> data = pc.getPengaduanById(id);
+//                    if (data != null) {
+//                        StringBuilder info = new StringBuilder();
+//                        info.append("ID: ").append(data.get("id")).append("\n");
+//                        info.append("Date: ").append(data.get("date")).append("\n");
+//                        info.append("Title: ").append(data.get("title")).append("\n");
+//                        info.append("Category: ").append(data.get("category_name")).append("\n");
+//                        info.append("Status: ").append(data.get("status")).append("\n");
+//
+//                        JOptionPane.showMessageDialog(button, info.toString(), "Detail Pengaduan", JOptionPane.INFORMATION_MESSAGE);
+//                    } else {
+//                        JOptionPane.showMessageDialog(button, "Data tidak ditemukan untuk ID: " + id, "Error", JOptionPane.ERROR_MESSAGE);
+//                    }
+//                } else {
+//                    JOptionPane.showMessageDialog(button, "ID tidak tersedia", "Error", JOptionPane.ERROR_MESSAGE);
+//                }
             }
             clicked = false;
             return label;

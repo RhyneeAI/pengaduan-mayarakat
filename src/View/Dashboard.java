@@ -154,7 +154,7 @@ public class Dashboard extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
-            UIManager.put("Table.showGrid", true);
+            UIManager.put("Table.showUIManager.setLookAndFeel(new FlatLightLaf());Grid", true);
 //            UIManager.put("Table.gridColor", Color.LIGHT_GRAY); 
         } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();

@@ -8,6 +8,17 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TimeHelper {
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    public static Date parseDate(String dateString) {
+        try {
+            return dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
     public static Date getFirstDayOfMonth() {
         Date date = new Date();
         return new Date(date.getYear(), date.getMonth(), 1);

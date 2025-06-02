@@ -48,7 +48,7 @@ public class PengaduanModel {
             new ArrayBuilder("c.user_id", Session.get("id"))
         };
 
-        qb.select("c.id, c.date, c.title, cc.category_name, c.status")
+        qb.select("c.*, cc.category_name")
           .from("complaints as c")
           .leftJoin("complaint_categories as cc", "c.category_id = cc.id")
           .where(condition);
