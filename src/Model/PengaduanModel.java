@@ -45,7 +45,7 @@ public class PengaduanModel {
         DBQueryBuilder qb = new DBQueryBuilder();
         ArrayBuilder[] condition = {
             new ArrayBuilder("c.id", id),
-            new ArrayBuilder("c.user_id", Session.get("id"))
+//            new ArrayBuilder("c.user_id", Session.get("id"))
         };
 
         qb.select("c.*, cc.category_name")

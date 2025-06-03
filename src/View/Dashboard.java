@@ -5,8 +5,10 @@ import View.Content.PengaduanContent;
 import com.formdev.flatlaf.FlatLightLaf;
 import Controller.UserController;
 import Helper.MessageHelper;
+import View.Content.KategoriContent;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.Map;
 
 public class Dashboard extends JFrame {
@@ -44,16 +46,19 @@ public class Dashboard extends JFrame {
 
         // Panel atas sidebar
         JPanel topMenuPanel = new JPanel();
-        topMenuPanel.setLayout(new GridLayout(2, 1, 0, 5));
+        topMenuPanel.setLayout(new GridLayout(3, 1, 0, 5));
         topMenuPanel.setBackground(new Color(35, 45, 65));
         topMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
 
         JButton btnDashboard = new JButton("Dashboard");
+        JButton btnKategori = new JButton("Kategori");
         JButton btnPengaduan = new JButton("Pengaduan");
         styleSidebarButton(btnDashboard, new Color(52, 73, 94));
+        styleSidebarButton(btnKategori, new Color(41, 128, 185));
         styleSidebarButton(btnPengaduan, new Color(41, 128, 185));
 
         topMenuPanel.add(btnDashboard);
+        topMenuPanel.add(btnKategori);
         topMenuPanel.add(btnPengaduan);
 
         // Panel bawah sidebar (logout)
@@ -88,6 +93,13 @@ public class Dashboard extends JFrame {
             desktopPane.repaint();
             desktopPane.add(dcon);
             dcon.setVisible(true);
+        });
+        btnKategori.addActionListener((ActionEvent e) -> {
+            KategoriContent kcon = new KategoriContent(desktopPane);
+            desktopPane.removeAll();
+            desktopPane.repaint();
+            desktopPane.add(kcon);
+            kcon.setVisible(true);
         });
         btnPengaduan.addActionListener(e -> {
             PengaduanContent pcon = new PengaduanContent(desktopPane);

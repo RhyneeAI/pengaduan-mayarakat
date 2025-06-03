@@ -1,61 +1,60 @@
 package Controller;
 
-import Helper.PasswordHelper;
 import Helper.ValidationHelper;
 import Lib.ArrayBuilder;
-import Model.PengaduanModel;
-import Model.UserModel;
+import Model.KategoriModel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PengaduanController {
-    PengaduanModel pm = new PengaduanModel();
-    public String[] getKategoriOptions() {
-        List<Map<String, Object>> kategoriList = pm.getKategoriPengaduan();
+public class KategoriController {
+    KategoriModel km = new KategoriModel();
+    
+    public List<Map<String, Object>> getKategori() {
+        return km.getKategori();
+    }
+    
+    public Map<String, Object> getKategoriById(String id) {
+        return km.getKategoriById(id);
+    }
+    
+    public Map<String, Object> deleteKategori(String id) {
+        Boolean r = km.delete(id);
 
-        String[] kategoriOptions = new String[kategoriList.size()];
-        for (int i = 0; i < kategoriList.size(); i++) {
-            kategoriOptions[i] = kategoriList.get(i).get("category_name").toString();
-        }
-
-        return kategoriOptions;
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", r);
+        result.put("message", r ? "Kategori Pengaduan berhasil dihapus!" : "Kategori Pengaduan gagal dihapus.");
+        return result;
     }
     
-    public List<Map<String, Object>> getPengaduan() {
-        return pm.getPengaduan();
-    }
-    
-    public Map<String, Object> getPengaduanById(String id) {
-        return pm.getPengaduanById(id);
-    }
-    
-    public Map<String, Object> setPengaduan(List<ArrayBuilder> pengaduanData) {
-        Map<String, String> pengaduanMap = new HashMap<>();
-        for (ArrayBuilder ab : pengaduanData) {
-            if (ab.key.equals("category")) {
-                Map<String, Object> categoryData = pm.getPengaduanCategory(ab.value);
-                if (categoryData != null && categoryData.containsKey("id")) {
-                    ab.key = "category_id";
-                    ab.value = categoryData.get("id").toString();
-                }
-            }
-            pengaduanMap.put(ab.key, ab.value);
+    public Map<String, Object> setKategori(List<ArrayBuilder> kategoriData) {
+        Map<String, String> kategoriMap = new HashMap<>();
+        for (ArrayBuilder ab : kategoriData) {
+            kategoriMap.put(ab.key, ab.value);
         }
 
         // Cek field wajib
-        List<String> requiredFields = List.of("title", "date", "body");
-        Map<String, Object> validationResult = ValidationHelper.validateFields(pengaduanMap, requiredFields);
+        List<String> requiredFields = List.of("category_name");
+        Map<String, Object> validationResult = ValidationHelper.validateFields(kategoriMap, requiredFields);
 
         if (validationResult != null) {
             return validationResult;
         }
         
-        Boolean r = pm.insert(pengaduanData);
+        Boolean r = km.insert(kategoriData);
 
         Map<String, Object> result = new HashMap<>();
         result.put("status", r);
-        result.put("message", r ? "Pengaduan baru berhasil ditambahkan, Silahkan tunggu sampai pengaduan diperiksa!" : "Pengaduan gagal ditambahkan.");
+        result.put("message", r ? "Kategori Pengaduan baru berhasil ditambahkan!" : "Kategori Pengaduan gagal ditambahkan.");
+        return result;
+    }
+    
+    public Map<String, Object> updateKategori(String id, List<ArrayBuilder> kategoriData) {
+        Boolean r = km.update(id, kategoriData);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", r);
+        result.put("message", r ? "Kategori Pengaduan berhasil diupdate!" : "Kategori Pengaduan gagal diupdate!");
         return result;
     }
 }

@@ -30,6 +30,7 @@ public class EditPengaduanForm extends JInternalFrame {
         super("", false, false, false, false);
         
         PengaduanController pc = new PengaduanController();
+        System.out.println(idPengaduan);
         Map<String, Object> pengaduanData = pc.getPengaduanById(idPengaduan);
         
         setBorder(null);

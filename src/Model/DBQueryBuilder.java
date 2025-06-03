@@ -1,15 +1,6 @@
 package Model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringJoiner;
 import Lib.ArrayBuilder;
-
 import java.sql.*;
 import java.util.*;
 
@@ -94,7 +85,7 @@ public class DBQueryBuilder {
         }
 
         query.append("UPDATE ").append(table)
-             .append(" SET ").append(setClause.toString()).append(" ");
+             .append(" SET ").append(setClause.toString()).append(" ").append(where);
         return this;
     }
 
@@ -151,8 +142,19 @@ public class DBQueryBuilder {
         return null;
     }
 
+    private void reset() {
+        query.setLength(0);
+        select.setLength(0);
+        table.setLength(0);
+        where.setLength(0);
+        order_by.setLength(0);
+        group_by.setLength(0);
+        join.setLength(0);
+    }
+
     // Build final query
     public String buildQuery() {
+        String result;
         if (query.length() > 0) {
             return query.toString(); // For insert, update, delete
         }
@@ -164,6 +166,8 @@ public class DBQueryBuilder {
                  .append(where)
                  .append(group_by)
                  .append(order_by);
-        return fullQuery.toString();
+        result = fullQuery.toString();
+        reset();
+        return result;
     }
 }
