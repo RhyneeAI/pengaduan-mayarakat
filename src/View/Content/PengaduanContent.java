@@ -21,6 +21,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 public class PengaduanContent extends JInternalFrame {
@@ -32,6 +33,8 @@ public class PengaduanContent extends JInternalFrame {
     
     PengaduanController pc = new PengaduanController();
     TimeHelper th = new TimeHelper();
+    
+    private String currentId = null;
 
     public PengaduanContent(JDesktopPane desktopPane) {
         super("", false, false, false, false);
@@ -134,7 +137,37 @@ public class PengaduanContent extends JInternalFrame {
                 return column == 5; 
             }
         };
+        
         loadDataTable();
+         // Inisialisasi tabel setelah isi data
+        table = new JTable(tableModel);
+        table.setRowHeight(24);
+
+        // Center kolom "No"
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // No
+
+        // Kolom "Status" pakai renderer warna
+        table.getColumnModel().getColumn(4).setCellRenderer(new StatusCellRenderer());
+
+        // Kolom "Aksi" pakai tombol
+        table.getColumnModel().getColumn(5).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(5).setCellEditor(new ButtonPanelEditor(desktopPane));
+
+        // Sembunyikan kolom ID (kolom ke-6 / index 6)
+        table.removeColumn(table.getColumnModel().getColumn(6));
+        table.setShowGrid(true);
+        table.setBackground(Color.WHITE);
+        table.setFillsViewportHeight(true); 
+        
+        // Atur lebar kolom
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);  // No
+        table.getColumnModel().getColumn(1).setPreferredWidth(100); // Date
+        table.getColumnModel().getColumn(2).setPreferredWidth(200); // Title
+        table.getColumnModel().getColumn(3).setPreferredWidth(150); // Category
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Status
+        table.getColumnModel().getColumn(5).setPreferredWidth(160); // Aksi (Edit button)
 
         JScrollPane tableScrollPane = new JScrollPane(table);
         tableScrollPane.setBorder(null);
@@ -192,36 +225,6 @@ public class PengaduanContent extends JInternalFrame {
                 tableModel.addRow(rowData);
             }
         }
-
-        // Inisialisasi tabel setelah isi data
-        table = new JTable(tableModel);
-        table.setRowHeight(24);
-
-        // Center kolom "No"
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer); // No
-
-        // Kolom "Status" pakai renderer warna
-        table.getColumnModel().getColumn(4).setCellRenderer(new StatusCellRenderer());
-
-        // Kolom "Aksi" pakai tombol
-        table.getColumnModel().getColumn(5).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(5).setCellEditor(new ButtonEditor(new JCheckBox(), desktopPane));
-
-        // Sembunyikan kolom ID (kolom ke-6 / index 6)
-        table.removeColumn(table.getColumnModel().getColumn(6));
-        table.setShowGrid(true);
-        table.setBackground(Color.WHITE);
-        table.setFillsViewportHeight(true); 
-        
-        // Atur lebar kolom
-        table.getColumnModel().getColumn(0).setPreferredWidth(50);  // No
-        table.getColumnModel().getColumn(1).setPreferredWidth(100); // Date
-        table.getColumnModel().getColumn(2).setPreferredWidth(200); // Title
-        table.getColumnModel().getColumn(3).setPreferredWidth(150); // Category
-        table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Status
-        table.getColumnModel().getColumn(5).setPreferredWidth(100); // Aksi (Edit button)
     }
     
     // Status cell renderer (warna background biru muda & teks tengah)
@@ -250,105 +253,83 @@ public class PengaduanContent extends JInternalFrame {
         }
     }
 
-
     // Button Renderer (tampilkan tombol dengan padding di tengah cell)
     public class ButtonRenderer extends JPanel implements TableCellRenderer {
-        private final JButton button;
+        private final JButton buttonEdit = new JButton("Edit");
+        private final JButton buttonDelete = new JButton("Delete");
 
         public ButtonRenderer() {
-            setLayout(new GridBagLayout()); // centering
-            button = new JButton("Edit");
-            button.setPreferredSize(new Dimension(80, 20));
-            add(button);
+            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0)); // Ganti ke FlowLayout
+            setPreferredSize(new Dimension(160, 30)); // Pastikan cukup lebar
+            buttonEdit.setPreferredSize(new Dimension(70, 20));
+            buttonDelete.setPreferredSize(new Dimension(70, 20));
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
+            this.removeAll();
             this.setOpaque(true);
             this.setBackground(Color.WHITE);
-
-            // Set border manual agar terlihat seperti grid
             this.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, table.getGridColor()));
 
-            button.setText((value == null) ? "Edit" : value.toString());
+            buttonEdit.setText("Edit");
+            buttonDelete.setText("Delete");
+            this.add(buttonEdit);
+            this.add(buttonDelete);
+
             return this;
         }
     }
 
-    class ButtonEditor extends DefaultCellEditor {
-        protected JButton button;
-        private String label;
-        private boolean clicked;
-        private int row;
-        JDesktopPane desktopPane;
+    class ButtonPanelEditor extends AbstractCellEditor implements TableCellEditor {
+        private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        private final JButton btnEdit = new JButton("Edit");
+        private final JButton btnDelete = new JButton("Delete");
 
-        public ButtonEditor(JCheckBox checkBox, JDesktopPane desktopPane) {
-            super(checkBox);
-            button = new JButton();
-            button.setOpaque(true);
-            button.setMargin(new Insets(2, 8, 2, 8)); // agar tombol tidak full 100% lebar
-            button.setFont(button.getFont().deriveFont(Font.PLAIN, 12));
-            button.addActionListener(e -> fireEditingStopped());
-            
-            this.desktopPane = desktopPane;
+        public ButtonPanelEditor(JDesktopPane desktopPane) {
+            panel.setPreferredSize(new Dimension(160, 30)); // Pastikan cukup lebar
+            panel.add(btnEdit);
+            panel.add(btnDelete);
+
+            btnEdit.addActionListener(e -> {
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow != -1) {
+                    int modelRow = table.convertRowIndexToModel(selectedRow);
+                    currentId = table.getModel().getValueAt(modelRow, 6).toString();
+
+                    EditPengaduanForm form = new EditPengaduanForm(desktopPane, currentId);
+                    desktopPane.removeAll();
+                    desktopPane.repaint();
+                    desktopPane.add(form);
+                    form.setVisible(true);
+                }
+            });
+
+            btnDelete.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(panel, "Yakin hapus data?");
+                if (confirm == JOptionPane.YES_OPTION) {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        int modelRow = table.convertRowIndexToModel(selectedRow);
+                        String id = table.getModel().getValueAt(modelRow, 6).toString();
+                        pc.deletePengaduan(id);
+                        fireEditingStopped();
+                        loadDataTable();
+                    }
+                }
+            });
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value,
-                                                     boolean isSelected, int row, int column) {
-            this.row = row;
-            clicked = true;
-
-            // Tambahkan border agar terlihat grid-nya
-            button.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, table.getGridColor()));
-
-            Object idObj = table.getModel().getValueAt(table.convertRowIndexToModel(row), 6);
-            button.putClientProperty("id", idObj);
-
-            label = (value == null) ? "Edit" : value.toString();
-            button.setText(label);
-            return button;
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            return panel;
         }
-
 
         @Override
         public Object getCellEditorValue() {
-            if (clicked) {
-                Object idObj = button.getClientProperty("id");
-                EditPengaduanForm form = new EditPengaduanForm(desktopPane, idObj.toString());
-                desktopPane.removeAll();
-                desktopPane.repaint();
-                desktopPane.add(form);
-                form.setVisible(true);
-//                if (idObj != null) {
-//                    String id = idObj.toString();
-//                    Map<String, Object> data = pc.getPengaduanById(id);
-//                    if (data != null) {
-//                        StringBuilder info = new StringBuilder();
-//                        info.append("ID: ").append(data.get("id")).append("\n");
-//                        info.append("Date: ").append(data.get("date")).append("\n");
-//                        info.append("Title: ").append(data.get("title")).append("\n");
-//                        info.append("Category: ").append(data.get("category_name")).append("\n");
-//                        info.append("Status: ").append(data.get("status")).append("\n");
-//
-//                        JOptionPane.showMessageDialog(button, info.toString(), "Detail Pengaduan", JOptionPane.INFORMATION_MESSAGE);
-//                    } else {
-//                        JOptionPane.showMessageDialog(button, "Data tidak ditemukan untuk ID: " + id, "Error", JOptionPane.ERROR_MESSAGE);
-//                    }
-//                } else {
-//                    JOptionPane.showMessageDialog(button, "ID tidak tersedia", "Error", JOptionPane.ERROR_MESSAGE);
-//                }
-            }
-            clicked = false;
-            return label;
-        }
-
-        @Override
-        public boolean stopCellEditing() {
-            clicked = false;
-            return super.stopCellEditing();
+            return null;
         }
     }
 }

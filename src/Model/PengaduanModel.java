@@ -87,4 +87,49 @@ public class PengaduanModel {
             return false;
         }
     }
+
+    public boolean update(String id, List<ArrayBuilder> data) {
+        try {
+            DBQueryBuilder builder = new DBQueryBuilder();
+            ArrayBuilder[] condition = {
+                new ArrayBuilder("id", id),
+            };
+            builder.where(condition).update("complaints", data.toArray(new ArrayBuilder[0]));
+
+            String sql = builder.buildQuery(); 
+            Statement stmt = con.createStatement();
+            int result = stmt.executeUpdate(sql);
+
+            return result > 0;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null,
+                "Error saat login: " + e.getMessage() +
+                "\nSQLState: " + e.getSQLState() +
+                "\nErrorCode: " + e.getErrorCode());
+            return false;
+        }
+    }
+
+    public boolean delete(String id) {
+        try {
+            ArrayBuilder[] condition = {
+                new ArrayBuilder("id", id)
+            };
+
+            DBQueryBuilder builder = new DBQueryBuilder();
+            builder.where(condition).delete("complaints");
+
+            String sql = builder.buildQuery(); 
+            Statement stmt = con.createStatement();
+            int result = stmt.executeUpdate(sql);
+
+            return result > 0;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null,
+                "Error saat login: " + e.getMessage() +
+                "\nSQLState: " + e.getSQLState() +
+                "\nErrorCode: " + e.getErrorCode());
+            return false;
+        }
+    }
 }

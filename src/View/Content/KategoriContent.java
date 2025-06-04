@@ -270,10 +270,10 @@ public class KategoriContent extends JInternalFrame {
                         int modelRow = table.convertRowIndexToModel(selectedRow);
                         String id = table.getModel().getValueAt(modelRow, 3).toString();
                         kc.deleteKategori(id);
+                        fireEditingStopped();
                         loadDataTable();
                     }
                 }
-                fireEditingStopped();
             });
         }
 

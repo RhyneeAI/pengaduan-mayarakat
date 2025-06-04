@@ -1,6 +1,5 @@
 package Controller;
 
-import Helper.PasswordHelper;
 import Helper.ValidationHelper;
 import Lib.ArrayBuilder;
 import Model.PengaduanModel;
@@ -55,6 +54,36 @@ public class PengaduanController {
         Map<String, Object> result = new HashMap<>();
         result.put("status", r);
         result.put("message", r ? "Pengaduan baru berhasil ditambahkan, Silahkan tunggu sampai pengaduan diperiksa!" : "Pengaduan gagal ditambahkan.");
+        return result;
+    }
+
+    public Map<String, Object> updatePengaduan(String id, List<ArrayBuilder> pengaduanData) {
+        for (ArrayBuilder ab : pengaduanData) {
+            if (ab.key.equals("category")) {
+                Map<String, Object> categoryData = pm.getPengaduanCategory(ab.value);
+                if (categoryData != null && categoryData.containsKey("id")) {
+                    ab.key = "category_id";
+                    ab.value = categoryData.get("id").toString();
+                }
+                break;
+            }
+            continue;
+        }
+
+        Boolean r = pm.update(id, pengaduanData);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", r);
+        result.put("message", r ? "Pengaduan berhasil diupdate, Silahkan tunggu sampai pengaduan diperiksa!" : "Pengaduan gagal ditambahkan.");
+        return result;
+    }
+
+    public Map<String, Object> deletePengaduan(String id) {
+        Boolean r = pm.delete(id);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", r);
+        result.put("message", r ? "Pengaduan berhasil dihapus!" : "Pengaduan gagal dihapus.");
         return result;
     }
 }

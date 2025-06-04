@@ -169,7 +169,7 @@ public class EditPengaduanForm extends JInternalFrame {
             data.add(new ArrayBuilder("is_public", chcbPublic.isSelected() ? "1" : "0"));
             data.add(new ArrayBuilder("user_id", Session.get("id")));
             
-            Map<String, Object> result = pc.setPengaduan(data);
+            Map<String, Object> result = pc.updatePengaduan(idPengaduan, data);
             MessageHelper.showMessageFromResult(result);
 
             if (Boolean.TRUE.equals(result.get("status"))) {
