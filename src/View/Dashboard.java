@@ -6,6 +6,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import Controller.UserController;
 import Helper.MessageHelper;
 import View.Content.KategoriContent;
+import View.Content.UserManagementContent;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -46,18 +47,21 @@ public class Dashboard extends JFrame {
 
         // Panel atas sidebar
         JPanel topMenuPanel = new JPanel();
-        topMenuPanel.setLayout(new GridLayout(3, 1, 0, 5));
+        topMenuPanel.setLayout(new GridLayout(4, 1, 0, 5));
         topMenuPanel.setBackground(new Color(35, 45, 65));
         topMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
 
         JButton btnDashboard = new JButton("Dashboard");
         JButton btnKategori = new JButton("Kategori");
+        JButton btnUserManagement = new JButton("Manajemen User");
         JButton btnPengaduan = new JButton("Pengaduan");
         styleSidebarButton(btnDashboard, new Color(52, 73, 94));
+        styleSidebarButton(btnUserManagement, new Color(41, 128, 185));
         styleSidebarButton(btnKategori, new Color(41, 128, 185));
         styleSidebarButton(btnPengaduan, new Color(41, 128, 185));
 
         topMenuPanel.add(btnDashboard);
+        topMenuPanel.add(btnUserManagement);
         topMenuPanel.add(btnKategori);
         topMenuPanel.add(btnPengaduan);
 
@@ -93,6 +97,13 @@ public class Dashboard extends JFrame {
             desktopPane.repaint();
             desktopPane.add(dcon);
             dcon.setVisible(true);
+        });
+        btnUserManagement.addActionListener((ActionEvent e) -> {
+            UserManagementContent umcon = new UserManagementContent(desktopPane);
+            desktopPane.removeAll();
+            desktopPane.repaint();
+            desktopPane.add(umcon);
+            umcon.setVisible(true);
         });
         btnKategori.addActionListener((ActionEvent e) -> {
             KategoriContent kcon = new KategoriContent(desktopPane);

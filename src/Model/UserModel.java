@@ -102,4 +102,41 @@ public class UserModel {
                  .first();
     }
 
+    public List<Map<String, Object>> getUserList() {
+        DBQueryBuilder qb = new DBQueryBuilder();
+
+        return qb.select("*")
+                 .from("users")
+                 .get(); 
+    }
+    
+    public boolean activateUser(String id, String isActive) {
+        try {
+            ArrayBuilder[] condition = {
+                new ArrayBuilder("id", id)
+            };
+            
+            System.out.println(id + " " + isActive);
+            boolean aktif = isActive.equals("1") || isActive.equalsIgnoreCase("true") || isActive.equals("Y");
+            ArrayBuilder[] updateData = {
+                new ArrayBuilder("is_active", aktif ? "0" : "1")
+            };
+
+            DBQueryBuilder builder = new DBQueryBuilder();
+            builder.where(condition).update("users", updateData);
+
+            String sql = builder.buildQuery(); 
+            // System.out.print(sql);
+            Statement stmt = con.createStatement();
+            int result = stmt.executeUpdate(sql);
+
+            return result > 0;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null,
+                "Error saat login: " + e.getMessage() +
+                "\nSQLState: " + e.getSQLState() +
+                "\nErrorCode: " + e.getErrorCode());
+            return false;
+        }
+    }
 }

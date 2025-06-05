@@ -8,7 +8,11 @@ import Helper.PasswordHelper;
 import Helper.ValidationHelper;
 import Lib.ArrayBuilder;
 import Lib.Session;
+import Model.DBQueryBuilder;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 public class UserController {
     public static void main(String[] args) {
@@ -95,5 +99,21 @@ public class UserController {
         result.put("message", "Logout berhasil!");
         return result;
     }
+    
+    public List<Map<String, Object>> getUserList() {
+        UserModel um = new UserModel();
+        return um.getUserList();
+    }
+    
+    public Map<String, Object> activateUser(String id, String isActive) {
+        UserModel um = new UserModel();
+        Boolean r = um.activateUser(id, isActive);
+        
+        boolean aktif = isActive.equals("1") || isActive.equalsIgnoreCase("true") || isActive.equals("Y");
 
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", aktif);
+        result.put("message", aktif ? "Pengguna berhasil di Non Aktifkan!" : "Pengguna berhasil di Aktifkan!");
+        return result;
+    }
 }
