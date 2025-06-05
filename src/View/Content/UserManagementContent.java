@@ -65,48 +65,9 @@ public class UserManagementContent extends JInternalFrame {
         // === ROW 1: Spacer ===
         gbc.gridy = 1;
         panelForm.add(Box.createVerticalStrut(35), gbc);
-
-        // === ROW 2: Filter Bar ===
-        gbc.gridy = 2;
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Label Tanggal Awal
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        panelForm.add(new JLabel("Tanggal Awal"), gbc);
-
-        // DateChooser Start
-        gbc.gridx = 1;
-        gbc.weightx = 0.2;
-        dateChooserStart = new JDateChooser();
-        dateChooserStart.getDateEditor().setEnabled(false);
-        dateChooserStart.setPreferredSize(new Dimension(150, 25));
-        dateChooserStart.setDate(th.getFirstDayOfMonth());
-        panelForm.add(dateChooserStart, gbc);
-
-        // Label Tanggal Akhir
-        gbc.gridx = 2;
-        gbc.weightx = 0;
-        panelForm.add(new JLabel("Tanggal Akhir"), gbc);
-
-        // DateChooser End
-        gbc.gridx = 3;
-        gbc.weightx = 0.2;
-        dateChooserEnd = new JDateChooser();
-        dateChooserEnd.getDateEditor().setEnabled(false);
-        dateChooserEnd.setPreferredSize(new Dimension(150, 25));
-        dateChooserEnd.setDate(th.getDateNow());
-        panelForm.add(dateChooserEnd, gbc);
-
-        // Tombol Filter
-        gbc.gridx = 4;
-        JButton btnFilter = new JButton("Filter");
-        panelForm.add(btnFilter, gbc);
         
-
         // === ROW 3: Table ===
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.gridx = 0;
         gbc.gridwidth = 7;
         gbc.weighty = 1.0;
@@ -144,7 +105,7 @@ public class UserManagementContent extends JInternalFrame {
         table.getColumnModel().getColumn(1).setPreferredWidth(100); // NIK
         table.getColumnModel().getColumn(2).setPreferredWidth(230); // Nama
         table.getColumnModel().getColumn(3).setPreferredWidth(210); // Alamat
-        table.getColumnModel().getColumn(4).setPreferredWidth(50);  // Jenis Kelamin
+        table.getColumnModel().getColumn(4).setPreferredWidth(120);  // Jenis Kelamin
         table.getColumnModel().getColumn(5).setPreferredWidth(100); // Usia
         table.getColumnModel().getColumn(6).setPreferredWidth(140); // Aksi
 
@@ -193,7 +154,7 @@ public class UserManagementContent extends JInternalFrame {
                     row.get("name"),
                     row.get("address"),
                     row.get("gender"),
-                    row.get("birth_date"),
+                    th.getYearsElapsed(row.get("birth_date").toString()) + " tahun",
                     "Edit",
                     row.get("id"),
                     row.get("is_active").toString()
