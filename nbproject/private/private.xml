@@ -3,18 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/UserManagementContent.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Controller/UserController.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/Pengaduan/TambahPengaduanForm.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Helper/TimeHelper.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/PengaduanManagementContent.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Model/DBQueryBuilder.java</file>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Login.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/PengaduanContent.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Model/KategoriModel.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/KategoriContent.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Helper/GlobalHelper.java</file>
             <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Dashboard.java</file>
-            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Model/UserModel.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/DashboardContent.java</file>
         </group>
     </open-files>
 </project-private>

@@ -4,7 +4,6 @@ import Controller.KategoriController;
 import Helper.MessageHelper;
 import Helper.UIHelper;
 import Lib.ArrayBuilder;
-import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;

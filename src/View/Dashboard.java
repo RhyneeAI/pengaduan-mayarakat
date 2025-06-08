@@ -5,6 +5,7 @@ import View.Content.PengaduanContent;
 import com.formdev.flatlaf.FlatLightLaf;
 import Controller.UserController;
 import Helper.MessageHelper;
+import View.Content.DashboardAdminContent;
 import View.Content.KategoriContent;
 import View.Content.PengaduanManagement;
 import View.Content.UserManagementContent;
@@ -96,11 +97,7 @@ public class Dashboard extends JFrame {
         add(desktopPane, BorderLayout.CENTER);
 
         btnDashboard.addActionListener(e -> {
-            DashboardContent dcon = new DashboardContent();
-            desktopPane.removeAll();
-            desktopPane.repaint();
-            desktopPane.add(dcon);
-            dcon.setVisible(true);
+            showInternal(new DashboardAdminContent(desktopPane));
         });
         btnManajemenUser.addActionListener((ActionEvent e) -> {
             UserManagementContent umcon = new UserManagementContent(desktopPane);
@@ -151,7 +148,7 @@ public class Dashboard extends JFrame {
             }
         });
 
-        showInternal(new DashboardContent());
+        showInternal(new DashboardAdminContent(desktopPane));
     }
 
     private void styleSidebarButton(JButton button, Color bgColor) {
@@ -174,18 +171,8 @@ public class Dashboard extends JFrame {
             e.printStackTrace();
         }
     }
-
-//    // === Dummy Internal Frames for Content ===
-    class DashboardContent extends JInternalFrame {
-        public DashboardContent() {
-            super("Dashboard", false, false, false, false); // not resizable, not closable, not maximizable, not iconifiable
-            setBounds(0, 0, desktopPane.getWidth(), desktopPane.getHeight());
-            getContentPane().setLayout(new BorderLayout());
-            getContentPane().add(new JLabel("Konten Dashboard di sini", SwingConstants.CENTER), BorderLayout.CENTER);
-        }
-    }
-
-    public static void main(String[] args) {
+    
+     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
             UIManager.put("Table.showUIManager.setLookAndFeel(new FlatLightLaf());Grid", true);

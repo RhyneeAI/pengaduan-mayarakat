@@ -55,6 +55,27 @@ public class DBQueryBuilder {
         return this;
     }
     
+    // OR WHERE
+    public DBQueryBuilder orWhere(ArrayBuilder[] conditions) {
+        if (conditions.length == 0) return this;
+
+        // Jika where masih kosong, tambahkan "WHERE", jika sudah ada, gunakan "OR"
+        if (where.length() == 0) {
+            where.append("WHERE ");
+        } else {
+            where.append("OR ");
+        }
+
+        StringJoiner whereClause = new StringJoiner(" OR ");
+        for (ArrayBuilder condition : conditions) {
+            whereClause.add(condition.key + " = '" + condition.value + "'");
+        }
+
+        where.append(whereClause.toString()).append(" ");
+        return this;
+    }
+
+    
     public DBQueryBuilder orderBy(String field, String orderType) {
         order_by.append("ORDER BY ").append(field).append(" ").append(orderType);
         return this;
@@ -100,7 +121,7 @@ public class DBQueryBuilder {
         query.append("DELETE FROM ").append(table).append(" ").append(where);
         return this;
     }
-
+    
     // GET all records
     public List<Map<String, Object>> get() {
         try {
