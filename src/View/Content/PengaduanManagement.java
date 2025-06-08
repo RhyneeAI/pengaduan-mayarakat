@@ -4,7 +4,10 @@ import Controller.PengaduanController;
 import Helper.ColorHelper;
 import Helper.TimeHelper;
 import Helper.UIHelper;
+import Lib.ArrayBuilder;
+import Lib.Session;
 import View.Content.Pengaduan.EditPengaduanForm;
+import View.Content.Pengaduan.ProsesPengaduanForm;
 import View.Content.Pengaduan.TambahPengaduanForm;
 import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
@@ -24,8 +27,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-public class PengaduanContent extends JInternalFrame {
-    private JTable table;
+public class PengaduanManagement extends JInternalFrame {
+    private final JTable table;
     private final DefaultTableModel tableModel;
     private JDateChooser dateChooserStart;
     private JDateChooser dateChooserEnd;
@@ -36,7 +39,7 @@ public class PengaduanContent extends JInternalFrame {
     
     private String currentId = null;
 
-    public PengaduanContent(JDesktopPane desktopPane) {
+    public PengaduanManagement(JDesktopPane desktopPane) {
         super("", false, false, false, false);
         this.desktopPane = desktopPane;
         Color bgColor = Color.WHITE;
@@ -55,7 +58,7 @@ public class PengaduanContent extends JInternalFrame {
         gbc.weightx = 1.0;
 
         // === ROW 0: Title ===
-        JLabel titleLabel = new JLabel("Pengaduan");
+        JLabel titleLabel = new JLabel("Manajemen Pengaduan");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -107,22 +110,9 @@ public class PengaduanContent extends JInternalFrame {
         JButton btnFilter = new JButton("Filter");
         panelForm.add(btnFilter, gbc);
         
-        // Spacer
         gbc.gridx = 5;
+        gbc.gridwidth = 2;
         panelForm.add(new JLabel(""), gbc);
-
-        // Tombol Tambah (di kanan)
-        gbc.gridx = 6;
-        gbc.anchor = GridBagConstraints.EAST;
-        JButton btnTambah = new JButton("Buat Pengaduan");
-        btnTambah.addActionListener(e -> {
-            TambahPengaduanForm form = new TambahPengaduanForm(desktopPane);
-            desktopPane.removeAll();
-            desktopPane.repaint();
-            desktopPane.add(form);
-            form.setVisible(true);
-        });
-        panelForm.add(btnTambah, gbc);
 
         // === ROW 3: Table ===
         gbc.gridy = 3;
@@ -201,7 +191,7 @@ public class PengaduanContent extends JInternalFrame {
     }
     
     public final void loadDataTable() {
-        List<Map<String, Object>> pengaduanList = pc.getPengaduan();
+        List<Map<String, Object>> pengaduanList = pc.getPengaduan(new ArrayBuilder("newest", ""));
 
         tableModel.setRowCount(0); // Reset
         int no = 1;
@@ -219,7 +209,7 @@ public class PengaduanContent extends JInternalFrame {
                     title,
                     row.get("category_name"),
                     row.get("status"),
-                    "Edit",
+                    "Terima",
                     row.get("id") // kolom ke-6 (index 6), disembunyikan
                 };
                 tableModel.addRow(rowData);
@@ -255,75 +245,109 @@ public class PengaduanContent extends JInternalFrame {
 
     // Button Renderer (tampilkan tombol dengan padding di tengah cell)
     public class ButtonRenderer extends JPanel implements TableCellRenderer {
-        private final JButton buttonEdit = new JButton("Edit");
-        private final JButton buttonDelete = new JButton("Delete");
+        private final JButton buttonApprove = new JButton("Terima");
+        private final JButton buttonNotApprove = new JButton("Tolak");
+        private final JButton buttonView = new JButton("Lihat");
 
         public ButtonRenderer() {
-            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0)); // Ganti ke FlowLayout
-            setPreferredSize(new Dimension(160, 30)); // Pastikan cukup lebar
-            buttonEdit.setPreferredSize(new Dimension(70, 20));
-            buttonDelete.setPreferredSize(new Dimension(70, 20));
+            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
+            setPreferredSize(new Dimension(160, 30));
+            buttonApprove.setPreferredSize(new Dimension(70, 20));
+            buttonNotApprove.setPreferredSize(new Dimension(70, 20));
+            buttonView.setPreferredSize(new Dimension(70, 20));
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus,
-                                                       int row, int column) {
+                                                    boolean isSelected, boolean hasFocus,
+                                                    int row, int column) {
             this.removeAll();
             this.setOpaque(true);
             this.setBackground(Color.WHITE);
             this.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, table.getGridColor()));
 
-            buttonEdit.setText("Edit");
-            buttonDelete.setText("Delete");
-            this.add(buttonEdit);
-            this.add(buttonDelete);
+            // Ambil status dari model (kolom ke-4/index 4)
+            int modelRow = table.convertRowIndexToModel(row);
+            String status = table.getModel().getValueAt(modelRow, 4).toString();
 
+            if ("New".equalsIgnoreCase(status)) {
+                this.add(buttonApprove);
+                this.add(buttonNotApprove);
+            } else {
+                this.add(buttonView);
+            }
             return this;
         }
     }
 
     class ButtonPanelEditor extends AbstractCellEditor implements TableCellEditor {
         private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        private final JButton btnEdit = new JButton("Edit");
-        private final JButton btnDelete = new JButton("Delete");
+        private final JButton buttonApprove = new JButton("Terima");
+        private final JButton buttonNotApprove = new JButton("Tolak");
+        private final JButton buttonView = new JButton("Lihat");
 
         public ButtonPanelEditor(JDesktopPane desktopPane) {
-            panel.setPreferredSize(new Dimension(160, 30)); // Pastikan cukup lebar
-            panel.add(btnEdit);
-            panel.add(btnDelete);
+            panel.setPreferredSize(new Dimension(160, 30));
 
-            btnEdit.addActionListener(e -> {
+            buttonApprove.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(panel, "Terima pengaduan?");
+                if (confirm == JOptionPane.YES_OPTION) {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        int modelRow = table.convertRowIndexToModel(selectedRow);
+                        String id = table.getModel().getValueAt(modelRow, 6).toString();
+                        List<ArrayBuilder> data = new ArrayList<>();
+                        data.add(new ArrayBuilder("status", "Accepted"));
+                        pc.updatePengaduan(id, data);
+                        fireEditingStopped();
+                        loadDataTable();
+                    }
+                }
+            });
+
+            buttonNotApprove.addActionListener(e -> {
+                int confirm = JOptionPane.showConfirmDialog(panel, "Tolak pengaduan?");
+                if (confirm == JOptionPane.YES_OPTION) {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        int modelRow = table.convertRowIndexToModel(selectedRow);
+                        String id = table.getModel().getValueAt(modelRow, 6).toString();
+                        List<ArrayBuilder> data = new ArrayList<>();
+                        data.add(new ArrayBuilder("status", "Rejected"));
+                        pc.updatePengaduan(id, data);
+                        fireEditingStopped();
+                        loadDataTable();
+                    }
+                }
+            });
+
+            buttonView.addActionListener(e -> {
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow != -1) {
                     int modelRow = table.convertRowIndexToModel(selectedRow);
                     currentId = table.getModel().getValueAt(modelRow, 6).toString();
 
-                    EditPengaduanForm form = new EditPengaduanForm(desktopPane, currentId);
+                    ProsesPengaduanForm form = new ProsesPengaduanForm(desktopPane, currentId);
                     desktopPane.removeAll();
                     desktopPane.repaint();
                     desktopPane.add(form);
                     form.setVisible(true);
                 }
             });
-
-            btnDelete.addActionListener(e -> {
-                int confirm = JOptionPane.showConfirmDialog(panel, "Yakin hapus data?");
-                if (confirm == JOptionPane.YES_OPTION) {
-                    int selectedRow = table.getSelectedRow();
-                    if (selectedRow != -1) {
-                        int modelRow = table.convertRowIndexToModel(selectedRow);
-                        String id = table.getModel().getValueAt(modelRow, 6).toString();
-                        pc.deletePengaduan(id);
-                        fireEditingStopped();
-                        loadDataTable();
-                    }
-                }
-            });
         }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            panel.removeAll();
+            int modelRow = table.convertRowIndexToModel(row);
+            String status = table.getModel().getValueAt(modelRow, 4).toString();
+
+            if ("New".equalsIgnoreCase(status)) {
+                panel.add(buttonApprove);
+                panel.add(buttonNotApprove);
+            } else {
+                panel.add(buttonView);
+            }
             return panel;
         }
 

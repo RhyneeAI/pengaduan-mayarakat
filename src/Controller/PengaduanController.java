@@ -3,6 +3,7 @@ package Controller;
 import Helper.ValidationHelper;
 import Lib.ArrayBuilder;
 import Model.PengaduanModel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +21,20 @@ public class PengaduanController {
         return kategoriOptions;
     }
     
-    public List<Map<String, Object>> getPengaduan() {
-        return pm.getPengaduan();
+    public List<Map<String, Object>> getPengaduan(ArrayBuilder orderBy) {
+        return pm.getPengaduan(orderBy);
     }
     
     public Map<String, Object> getPengaduanById(String id) {
         return pm.getPengaduanById(id);
+    }
+    
+    public Map<String, Object> getTanggapanById(String id) {
+        return pm.getTanggapanById(id);
+    }
+    
+    public List<Map<String, Object>> getPengaduanByUserId() {
+        return pm.getPengaduanByUserId();
     }
     
     public Map<String, Object> setPengaduan(List<ArrayBuilder> pengaduanData) {
@@ -75,6 +84,19 @@ public class PengaduanController {
         Map<String, Object> result = new HashMap<>();
         result.put("status", r);
         result.put("message", r ? "Pengaduan berhasil diupdate, Silahkan tunggu sampai pengaduan diperiksa!" : "Pengaduan gagal ditambahkan.");
+        return result;
+    }
+    
+    public Map<String, Object> finishPengaduan(String idPengaduan, List<ArrayBuilder> pengaduanData, String finishType) {
+        Boolean r = pm.finishPengaduan(idPengaduan, pengaduanData, finishType);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", r);
+        if("Inser".equals(finishType)) {
+            result.put("message", r ? "Pengaduan berhasil diselesaikan!" : "Pengaduan gagal diselesaikan.");
+        } else {
+            result.put("message", r ? "Tanggapan Pengaduan berhasil diperbarui!" : "Tanggapan Pengaduan gagal diperbarui.");
+        }
         return result;
     }
 

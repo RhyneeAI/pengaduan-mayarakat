@@ -10,6 +10,7 @@ import Controller.PengaduanController;
 import Helper.MessageHelper;
 import Lib.Session;
 import View.Content.PengaduanContent;
+import View.Content.PengaduanManagement;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,13 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EditPengaduanForm extends JInternalFrame {
-    public EditPengaduanForm(JDesktopPane desktopPane, String idPengaduan) {
+public class ProsesPengaduanForm extends JInternalFrame {
+    public ProsesPengaduanForm(JDesktopPane desktopPane, String idPengaduan) {
         super("", false, false, false, false);
         
         PengaduanController pc = new PengaduanController();
         System.out.println(idPengaduan);
         Map<String, Object> pengaduanData = pc.getPengaduanById(idPengaduan);
+        Map<String, Object> tanggapanData = pc.getTanggapanById(idPengaduan);
         
         setBorder(null);
         setLayout(new BorderLayout());
@@ -49,7 +51,7 @@ public class EditPengaduanForm extends JInternalFrame {
         gbc.weightx = 1.0;
 
         // === Row 0: Title (4 kolom)
-        JLabel titleLabel = new JLabel("Edit Pengaduan");
+        JLabel titleLabel = new JLabel("Detail Pengaduan");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0;
@@ -133,47 +135,81 @@ public class EditPengaduanForm extends JInternalFrame {
         chcbPublic.setSelected((boolean) pengaduanData.get("is_public"));
         panelForm.add(chcbPublic, gbc);
 
-        // === Row 6: Spacer
+        // === Row 6: Tanggapan
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.NORTH;
+        JLabel lblTanggapan = new JLabel("Tanggapan");
+        lblTanggapan.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        panelForm.add(lblTanggapan, gbc);
+
+        JTextArea txtaTanggapan = new JTextArea(4, 20);
+        JScrollPane scrollTanggapan = new JScrollPane(txtaTanggapan);
+        if(tanggapanData != null) {
+            txtaTanggapan.setText(tanggapanData.get("summary").toString());
+        }
+        gbc.gridx = 1;
+        gbc.gridwidth = 4;
+        gbc.fill = GridBagConstraints.BOTH;
+        panelForm.add(scrollTanggapan, gbc);
+
+        // === Row 7: Spacer
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 5;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         panelForm.add(Box.createVerticalStrut(10), gbc);
 
-        // === Row 6: Button di kanan bawah
+        // Setelah inisialisasi komponen
+        txtJudul.setEditable(false);
+        txtaIsi.setEditable(false);
+        chcbPublic.setEnabled(false);
+        cbKategori.setEnabled(false);
+        dcTanggal.setEnabled(false); 
+
+        // === Row 7: Button di kanan bawah
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         RoundedButton btnKembali = new RoundedButton("Kembali");
         btnKembali.setBackground(ColorHelper.SECONDARY);
         btnKembali.setForeground(ColorHelper.getContrastColor(ColorHelper.SECONDARY));
         btnKembali.addActionListener(e -> {
-            PengaduanContent pcon = new PengaduanContent(desktopPane);
+            PengaduanManagement pcon = new PengaduanManagement(desktopPane);
             desktopPane.removeAll();
             desktopPane.repaint();
             desktopPane.add(pcon);
             pcon.setVisible(true);
         });
         btnPanel.add(btnKembali);
+        
+        String btnSimpanText, finishType;
+        if("Finished".equals(pengaduanData.get("status").toString())) {
+            btnSimpanText = "Perbarui Tanggapan";
+            finishType = "Update";
+        } else {
+            btnSimpanText = "Selesaikan";
+            finishType = "Insert";
+        }
 
-        RoundedButton btnSimpan = new RoundedButton("Simpan");
+        RoundedButton btnSimpan = new RoundedButton(btnSimpanText);
         btnSimpan.setBackground(ColorHelper.SUCCESS);
         btnSimpan.setForeground(ColorHelper.getContrastColor(ColorHelper.SUCCESS));
         btnSimpan.addActionListener(e -> {
             List<ArrayBuilder> data = new ArrayList<>();
-            String tanggalPengaduan = dcTanggal.getDate() == null ? "" : new java.text.SimpleDateFormat("yyyy-MM-dd").format(dcTanggal.getDate());
+            if("Finished".equals(pengaduanData.get("status").toString())) {
+                data.add(new ArrayBuilder("summary", txtaTanggapan.getText()));
+            } else {
+                data.add(new ArrayBuilder("complaint_id", idPengaduan));
+                data.add(new ArrayBuilder("completion_date", TimeHelper.getYMD()));
+                data.add(new ArrayBuilder("summary", txtaTanggapan.getText()));
+                data.add(new ArrayBuilder("operator_id", Session.get("id")));
+            }
 
-            data.add(new ArrayBuilder("title", txtJudul.getText()));
-            data.add(new ArrayBuilder("date", tanggalPengaduan));
-            data.add(new ArrayBuilder("body", txtaIsi.getText()));
-            data.add(new ArrayBuilder("category", (String) cbKategori.getSelectedItem()));
-            data.add(new ArrayBuilder("status", "New"));
-            data.add(new ArrayBuilder("is_public", chcbPublic.isSelected() ? "1" : "0"));
-            data.add(new ArrayBuilder("user_id", Session.get("id")));
-            
-            Map<String, Object> result = pc.updatePengaduan(idPengaduan, data);
+            Map<String, Object> result = pc.finishPengaduan(idPengaduan, data, finishType);
             MessageHelper.showMessageFromResult(result);
 
             if (Boolean.TRUE.equals(result.get("status"))) {
-                PengaduanContent pcon = new PengaduanContent(desktopPane);
+                PengaduanManagement pcon = new PengaduanManagement(desktopPane);
                 desktopPane.removeAll();
                 desktopPane.repaint();
                 desktopPane.add(pcon);

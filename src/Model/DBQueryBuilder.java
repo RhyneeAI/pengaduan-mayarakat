@@ -59,6 +59,12 @@ public class DBQueryBuilder {
         order_by.append("ORDER BY ").append(field).append(" ").append(orderType);
         return this;
     }
+    
+    public DBQueryBuilder orderByCustom(String customOrder) {
+        order_by.append("ORDER BY ").append(customOrder);
+        return this;
+    }
+
 
     // INSERT
     public DBQueryBuilder insert(String table, ArrayBuilder[] data) {

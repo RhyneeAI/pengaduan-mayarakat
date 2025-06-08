@@ -27,6 +27,12 @@ public class TimeHelper {
     public static Date getDateNow() {
         return new Date();
     }
+    
+    public static String getYMD() {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(date);
+    }
 
     public static String setYMD(Date date) {
         if (date == null) return null;

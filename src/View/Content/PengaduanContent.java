@@ -201,7 +201,7 @@ public class PengaduanContent extends JInternalFrame {
     }
     
     public final void loadDataTable() {
-        List<Map<String, Object>> pengaduanList = pc.getPengaduan();
+        List<Map<String, Object>> pengaduanList = pc.getPengaduanByUserId();
 
         tableModel.setRowCount(0); // Reset
         int no = 1;
