@@ -326,6 +326,11 @@ public class PengaduanManagement extends JInternalFrame {
                 if (selectedRow != -1) {
                     int modelRow = table.convertRowIndexToModel(selectedRow);
                     currentId = table.getModel().getValueAt(modelRow, 6).toString();
+                    
+                    String id = table.getModel().getValueAt(modelRow, 6).toString();
+                    List<ArrayBuilder> data = new ArrayList<>();
+                    data.add(new ArrayBuilder("status", "Process"));
+                    pc.updatePengaduan(id, data);
 
                     ProsesPengaduanForm form = new ProsesPengaduanForm(desktopPane, currentId);
                     desktopPane.removeAll();
