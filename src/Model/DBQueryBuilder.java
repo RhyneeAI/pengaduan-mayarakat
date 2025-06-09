@@ -41,40 +41,48 @@ public class DBQueryBuilder {
         return this;
     }
 
-    // WHERE 
+    // Utilitas untuk membangun klausa kondisi
+    private String buildConditionClause(ArrayBuilder[] conditions, String delimiter) {
+        StringJoiner clause = new StringJoiner(" " + delimiter + " ");
+        for (ArrayBuilder condition : conditions) {
+            String[] parts = condition.key.split(" ", 2);
+            if (parts.length == 2) {
+                clause.add(parts[0] + " " + parts[1] + " '" + condition.value + "'");
+            } else {
+                clause.add(condition.key + " = '" + condition.value + "'");
+            }
+        }
+        return clause.toString();
+    }
+
+    // WHERE
     public DBQueryBuilder where(ArrayBuilder[] conditions) {
         if (conditions.length == 0) return this;
-
-        where.append("WHERE ");
-        StringJoiner whereClause = new StringJoiner(" AND ");
-        for (ArrayBuilder condition : conditions) {
-            whereClause.add(condition.key + " = '" + condition.value + "'");
+        if (where.length() == 0) {
+            where.append("WHERE ");
+        } else {
+            where.append("AND ");
         }
-
-        where.append(whereClause.toString()).append(" ");
+        where.append(buildConditionClause(conditions, "AND")).append(" ");
         return this;
     }
-    
+
     // OR WHERE
     public DBQueryBuilder orWhere(ArrayBuilder[] conditions) {
         if (conditions.length == 0) return this;
-
-        // Jika where masih kosong, tambahkan "WHERE", jika sudah ada, gunakan "OR"
         if (where.length() == 0) {
             where.append("WHERE ");
         } else {
             where.append("OR ");
         }
-
-        StringJoiner whereClause = new StringJoiner(" OR ");
-        for (ArrayBuilder condition : conditions) {
-            whereClause.add(condition.key + " = '" + condition.value + "'");
-        }
-
-        where.append(whereClause.toString()).append(" ");
+        where.append(buildConditionClause(conditions, "OR")).append(" ");
         return this;
     }
 
+    // WHERE DATE (alias dari where, untuk kompatibilitas)
+    public DBQueryBuilder whereDate(ArrayBuilder[] conditions) {
+        return where(conditions);
+    }
     
     public DBQueryBuilder orderBy(String field, String orderType) {
         order_by.append("ORDER BY ").append(field).append(" ").append(orderType);

@@ -6,6 +6,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import Controller.UserController;
 import Helper.MessageHelper;
 import View.Content.DashboardAdminContent;
+import View.Content.DashboardUserContent;
 import View.Content.KategoriContent;
 import View.Content.PengaduanManagement;
 import View.Content.UserManagementContent;
@@ -49,22 +50,25 @@ public class Dashboard extends JFrame {
 
         // Panel atas sidebar
         JPanel topMenuPanel = new JPanel();
-        topMenuPanel.setLayout(new GridLayout(5, 1, 0, 5));
+        topMenuPanel.setLayout(new GridLayout(6, 1, 0, 5));
         topMenuPanel.setBackground(new Color(35, 45, 65));
         topMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
 
-        JButton btnDashboard = new JButton("Dashboard");
+        JButton btnDashboardAdmin = new JButton("Dashboard A");
+        JButton btnDashboardUser = new JButton("Dashboard U");
         JButton btnKategori = new JButton("Kategori");
         JButton btnManajemenUser = new JButton("Manajemen User");
         JButton btnManajemenPengaduan = new JButton("Manajemen Pengaduan");
         JButton btnPengaduan = new JButton("Pengaduan");
-        styleSidebarButton(btnDashboard, new Color(52, 73, 94));
+        styleSidebarButton(btnDashboardAdmin, new Color(52, 73, 94));
+        styleSidebarButton(btnDashboardUser, new Color(52, 73, 94));
         styleSidebarButton(btnManajemenUser, new Color(41, 128, 185));
         styleSidebarButton(btnManajemenPengaduan, new Color(41, 128, 185));
         styleSidebarButton(btnKategori, new Color(41, 128, 185));
         styleSidebarButton(btnPengaduan, new Color(41, 128, 185));
 
-        topMenuPanel.add(btnDashboard);
+        topMenuPanel.add(btnDashboardAdmin);
+        topMenuPanel.add(btnDashboardUser);
         topMenuPanel.add(btnManajemenUser);
         topMenuPanel.add(btnManajemenPengaduan);
         topMenuPanel.add(btnKategori);
@@ -96,36 +100,23 @@ public class Dashboard extends JFrame {
         desktopPane.setBorder(null);
         add(desktopPane, BorderLayout.CENTER);
 
-        btnDashboard.addActionListener(e -> {
+        btnDashboardAdmin.addActionListener(e -> {
             showInternal(new DashboardAdminContent(desktopPane));
         });
+        btnDashboardUser.addActionListener(e -> {
+            showInternal(new DashboardUserContent(desktopPane));
+        });
         btnManajemenUser.addActionListener((ActionEvent e) -> {
-            UserManagementContent umcon = new UserManagementContent(desktopPane);
-            desktopPane.removeAll();
-            desktopPane.repaint();
-            desktopPane.add(umcon);
-            umcon.setVisible(true);
+            showInternal(new UserManagementContent(desktopPane));
         });
         btnManajemenPengaduan.addActionListener((ActionEvent e) -> {
-            PengaduanManagement pmcon = new PengaduanManagement(desktopPane);
-            desktopPane.removeAll();
-            desktopPane.repaint();
-            desktopPane.add(pmcon);
-            pmcon.setVisible(true);
+            showInternal(new PengaduanManagement(desktopPane));
         });
         btnKategori.addActionListener((ActionEvent e) -> {
-            KategoriContent kcon = new KategoriContent(desktopPane);
-            desktopPane.removeAll();
-            desktopPane.repaint();
-            desktopPane.add(kcon);
-            kcon.setVisible(true);
+            showInternal(new KategoriContent(desktopPane));
         });
         btnPengaduan.addActionListener(e -> {
-            PengaduanContent pcon = new PengaduanContent(desktopPane);
-            desktopPane.removeAll();
-            desktopPane.repaint();
-            desktopPane.add(pcon);
-            pcon.setVisible(true);
+            showInternal(new PengaduanContent(desktopPane));
         });
         btnLogout.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(

@@ -48,8 +48,6 @@ public class DashboardModel {
                        .where(condition)
                        .buildQuery();
         
-//        System.out.println(sql);
-
         try (Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {

@@ -21,8 +21,8 @@ public class PengaduanController {
         return kategoriOptions;
     }
     
-    public List<Map<String, Object>> getPengaduan(ArrayBuilder orderBy) {
-        return pm.getPengaduan(orderBy);
+    public List<Map<String, Object>> getPengaduan(ArrayBuilder[] where, ArrayBuilder orderBy) {
+        return pm.getPengaduan(where, orderBy);
     }
     
     public Map<String, Object> getPengaduanById(String id) {

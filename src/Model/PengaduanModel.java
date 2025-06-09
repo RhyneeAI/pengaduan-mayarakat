@@ -25,23 +25,21 @@ public class PengaduanModel {
     }
     
     // Ambil semua pengaduan
-    public List<Map<String, Object>> getPengaduan(ArrayBuilder orderBy) {
+    public List<Map<String, Object>> getPengaduan(ArrayBuilder[] where, ArrayBuilder orderBy) {
         DBQueryBuilder qb = new DBQueryBuilder();
-        ArrayBuilder[] condition = {
-            new ArrayBuilder("c.user_id", Session.get("id"))
-        };
 
-        qb.select("c.id, c.date, c.title, cc.category_name, c.status")
+        qb.select("c.*, cc.category_name, u.name")
           .from("complaints as c")
-//          .where(condition)
-          .leftJoin("complaint_categories as cc", "c.category_id = cc.id");
+          .whereDate(where)
+          .leftJoin("complaint_categories as cc", "c.category_id = cc.id")
+          .leftJoin("users as u", "c.user_id = u.id");
         
         if("newest".equals(orderBy.key)) {
             qb.orderByCustom("CASE WHEN c.status = 'New' THEN 0 ELSE 1 END, c.status DESC");
         } else {
             qb.orderBy(orderBy.key, orderBy.value);
         }
-
+        
         return qb.get();
     }
 

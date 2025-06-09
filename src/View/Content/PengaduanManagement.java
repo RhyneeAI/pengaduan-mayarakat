@@ -78,9 +78,10 @@ public class PengaduanManagement extends JInternalFrame {
         gbc.anchor = GridBagConstraints.WEST;
 
         // Label Tanggal Awal
+        JLabel tglAwal = new JLabel("Tanggal Awal");
         gbc.gridx = 0;
         gbc.weightx = 0;
-        panelForm.add(new JLabel("Tanggal Awal"), gbc);
+        panelForm.add(tglAwal, gbc);
 
         // DateChooser Start
         gbc.gridx = 1;
@@ -191,7 +192,11 @@ public class PengaduanManagement extends JInternalFrame {
     }
     
     public final void loadDataTable() {
-        List<Map<String, Object>> pengaduanList = pc.getPengaduan(new ArrayBuilder("newest", ""));
+        ArrayBuilder[] condition = {
+            new ArrayBuilder("date >=", dateChooserStart.toString()),
+            new ArrayBuilder("date <=", dateChooserEnd.toString())
+        };
+        List<Map<String, Object>> pengaduanList = pc.getPengaduan(condition, new ArrayBuilder("newest", ""));
 
         tableModel.setRowCount(0); // Reset
         int no = 1;
