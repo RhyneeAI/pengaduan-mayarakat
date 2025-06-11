@@ -93,7 +93,7 @@ public class PengaduanContent extends JInternalFrame {
         // Label Tanggal Akhir
         gbc.gridx = 2;
         gbc.weightx = 0;
-        panelForm.add(new JLabel("Tanggal Akhir"), gbc);
+        panelForm.add(new JLabel(" s/d "), gbc);
 
         // DateChooser End
         gbc.gridx = 3;
@@ -110,7 +110,17 @@ public class PengaduanContent extends JInternalFrame {
         panelForm.add(btnFilter, gbc);
         
         btnFilter.addActionListener((ActionEvent e) -> {
-            loadDataTable(TimeHelper.setYMD(dateChooserStart.getDate()), TimeHelper.setYMD(dateChooserEnd.getDate()));
+            Date startDate = dateChooserStart.getDate();
+            Date endDate = dateChooserEnd.getDate();
+
+            if (startDate != null && endDate != null) {
+                if (startDate.after(endDate)) {
+                    JOptionPane.showMessageDialog(null, "Tanggal mulai tidak boleh lebih dari tanggal akhir.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+            
+            loadDataTable();
         });
         
         // Spacer
@@ -144,7 +154,7 @@ public class PengaduanContent extends JInternalFrame {
             }
         };
         
-        loadDataTable(TimeHelper.setYMD(dateChooserStart.getDate()), TimeHelper.setYMD(dateChooserEnd.getDate()));
+        loadDataTable();
          // Inisialisasi tabel setelah isi data
         table = new JTable(tableModel);
         table.setRowHeight(24);
@@ -206,11 +216,12 @@ public class PengaduanContent extends JInternalFrame {
         UIHelper.syncInternalFrameWithDesktop(this, desktopPane, outerPanel, wrapperPanel);
     }
     
-    public final void loadDataTable(String from, String to) {
+    public final void loadDataTable() {
         ArrayBuilder[] condition = {
-            new ArrayBuilder("date >=", from),
-            new ArrayBuilder("date <=", to)
+            new ArrayBuilder("date >=", TimeHelper.setYMD(dateChooserStart.getDate())),
+            new ArrayBuilder("date <=", TimeHelper.setYMD(dateChooserEnd.getDate()))
         };
+        
         List<Map<String, Object>> pengaduanList = pc.getPengaduanByUserId(condition);
 
         tableModel.setRowCount(0); // Reset
@@ -326,7 +337,7 @@ public class PengaduanContent extends JInternalFrame {
                         String id = table.getModel().getValueAt(modelRow, 6).toString();
                         pc.deletePengaduan(id);
                         fireEditingStopped();
-                        loadDataTable(TimeHelper.setYMD(dateChooserStart.getDate()), TimeHelper.setYMD(dateChooserEnd.getDate()));
+                        loadDataTable();
                     }
                 }
             });

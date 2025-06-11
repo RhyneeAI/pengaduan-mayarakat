@@ -93,7 +93,7 @@ public class PengaduanManagement extends JInternalFrame {
         // Label Tanggal Akhir
         gbc.gridx = 2;
         gbc.weightx = 0;
-        panelForm.add(new JLabel("Tanggal Akhir"), gbc);
+        panelForm.add(new JLabel(" s/d "), gbc);
 
         // DateChooser End
         gbc.gridx = 3;
@@ -110,6 +110,16 @@ public class PengaduanManagement extends JInternalFrame {
         panelForm.add(btnFilter, gbc);
         
         btnFilter.addActionListener((ActionEvent e) -> {
+            Date startDate = dateChooserStart.getDate();
+            Date endDate = dateChooserEnd.getDate();
+
+            if (startDate != null && endDate != null) {
+                if (startDate.after(endDate)) {
+                    JOptionPane.showMessageDialog(null, "Tanggal mulai tidak boleh lebih dari tanggal akhir.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+            
             loadDataTable();
         });
         
@@ -198,16 +208,6 @@ public class PengaduanManagement extends JInternalFrame {
             new ArrayBuilder("date >=", TimeHelper.setYMD(dateChooserStart.getDate())),
             new ArrayBuilder("date <=", TimeHelper.setYMD(dateChooserEnd.getDate()))
         };
-        
-        Date startDate = dateChooserStart.getDate();
-        Date endDate = dateChooserEnd.getDate();
-
-        if (startDate != null && endDate != null) {
-            if (startDate.after(endDate)) {
-                JOptionPane.showMessageDialog(null, "Tanggal mulai tidak boleh lebih dari tanggal akhir.", "Peringatan", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        }
 
         List<Map<String, Object>> pengaduanList = pc.getPengaduan(condition, new ArrayBuilder("newest", ""));
 

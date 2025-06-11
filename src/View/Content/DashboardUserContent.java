@@ -5,11 +5,11 @@ import Lib.ArrayBuilder;
 import com.toedter.calendar.JDateChooser;
 import Helper.TimeHelper;
 import View.Content.Pengaduan.KomenPengaduanForm;
-import View.Content.Pengaduan.ProsesPengaduanForm;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,15 +37,14 @@ public class DashboardUserContent extends JInternalFrame {
         filterPanel.add(new JLabel("Tanggal :"));
 
         dateFrom = new JDateChooser();
-        dateTo = new JDateChooser();
         dateFrom.setDate(TimeHelper.getFirstDayOfMonth());
-        dateFrom.setDateFormatString("yyyy-MM-dd");
         dateFrom.setPreferredSize(new Dimension(150, 25)); // Lebar 150px, tinggi 25px
+        dateFrom.getDateEditor().setEnabled(false);
 
+        dateTo = new JDateChooser();
         dateTo.setDate(TimeHelper.getDateNow());
-        dateTo.setDateFormatString("yyyy-MM-dd");
         dateTo.setPreferredSize(new Dimension(150, 25));
-
+        dateTo.getDateEditor().setEnabled(false);
 
         filterPanel.add(dateFrom);
         filterPanel.add(new JLabel(" s/d "));
@@ -77,12 +76,21 @@ public class DashboardUserContent extends JInternalFrame {
         add(pagingPanel, BorderLayout.SOUTH);
 
         // Load data awal
-        loadPengaduan(TimeHelper.setYMD(dateFrom.getDate()), TimeHelper.setYMD(dateTo.getDate()));
+        loadPengaduan();
 
         // Filter action
         btnFilter.addActionListener((ActionEvent e) -> {
+            Date startDate = dateFrom.getDate();
+            Date endDate = dateTo.getDate();
+
+            if (startDate != null && endDate != null) {
+                if (startDate.after(endDate)) {
+                    JOptionPane.showMessageDialog(null, "Tanggal mulai tidak boleh lebih dari tanggal akhir.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
             currentPage = 1;
-            loadPengaduan(TimeHelper.setYMD(dateFrom.getDate()), TimeHelper.setYMD(dateTo.getDate()));
+            loadPengaduan();
         });
 
         btnPrev.addActionListener(e -> {
@@ -100,11 +108,11 @@ public class DashboardUserContent extends JInternalFrame {
         });
     }
 
-    private void loadPengaduan(String from, String to) {
+    private void loadPengaduan() {
         gridPanel.removeAll();
         ArrayBuilder[] condition = {
-            new ArrayBuilder("date >=", from),
-            new ArrayBuilder("date <=", to)
+            new ArrayBuilder("date >=", TimeHelper.setYMD(dateFrom.getDate())),
+            new ArrayBuilder("date <=", TimeHelper.setYMD(dateTo.getDate()))
         };
         pengaduanList = pc.getPengaduan(condition, new ArrayBuilder("id", "DESC"));
         currentPage = 1;
