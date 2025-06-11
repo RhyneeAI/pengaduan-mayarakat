@@ -86,6 +86,22 @@ public class PengaduanModel {
         return qb.first();
     } 
     
+    public List<Map<String, Object>> getKomenPengaduanById(String idPengaduan) {
+        DBQueryBuilder qb = new DBQueryBuilder();
+        ArrayBuilder[] condition = {
+            new ArrayBuilder("cc.complaint_id", idPengaduan)
+        };
+
+        qb.select("cc.date, cc.comment, u.name as author")
+          .from("complaint_comments as cc")
+          .leftJoin("users as u", "cc.user_id = u.id")
+          .where(condition);
+        
+//        System.out.println(qb.buildQuery());
+
+        return qb.get();
+    }
+    
     public List<Map<String, Object>> getPengaduanByUserId() {
         DBQueryBuilder qb = new DBQueryBuilder();
         ArrayBuilder[] condition = {
@@ -192,6 +208,25 @@ public class PengaduanModel {
 
             DBQueryBuilder builder = new DBQueryBuilder();
             builder.where(condition).delete("complaints");
+
+            String sql = builder.buildQuery(); 
+            Statement stmt = con.createStatement();
+            int result = stmt.executeUpdate(sql);
+
+            return result > 0;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null,
+                "Error saat login: " + e.getMessage() +
+                "\nSQLState: " + e.getSQLState() +
+                "\nErrorCode: " + e.getErrorCode());
+            return false;
+        }
+    }
+    
+    public boolean addKomentar(List<ArrayBuilder> data) {
+        try {
+            DBQueryBuilder builder = new DBQueryBuilder();
+            builder.insert("complaint_comments", data.toArray(new ArrayBuilder[0]));
 
             String sql = builder.buildQuery(); 
             Statement stmt = con.createStatement();

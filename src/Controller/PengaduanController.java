@@ -3,7 +3,6 @@ package Controller;
 import Helper.ValidationHelper;
 import Lib.ArrayBuilder;
 import Model.PengaduanModel;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +24,16 @@ public class PengaduanController {
         return pm.getPengaduan(where, orderBy);
     }
     
-    public Map<String, Object> getPengaduanById(String id) {
-        return pm.getPengaduanById(id);
+    public Map<String, Object> getPengaduanById(String idPengaduan) {
+        return pm.getPengaduanById(idPengaduan);
     }
     
-    public Map<String, Object> getTanggapanById(String id) {
-        return pm.getTanggapanById(id);
+    public Map<String, Object> getTanggapanById(String idPengaduan) {
+        return pm.getTanggapanById(idPengaduan);
+    }
+    
+    public List<Map<String, Object>> getKomenPengaduanById(String idPengaduan) {
+        return pm.getKomenPengaduanById(idPengaduan);
     }
     
     public List<Map<String, Object>> getPengaduanByUserId() {
@@ -108,4 +111,13 @@ public class PengaduanController {
         result.put("message", r ? "Pengaduan berhasil dihapus!" : "Pengaduan gagal dihapus.");
         return result;
     }
+    
+    public Map<String, Object> addKomentar(List<ArrayBuilder> data) {
+        Boolean r = pm.addKomentar(data);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", r);
+        result.put("message", r ? "Komentar berhasil ditambahkan!" : "Komentar gagal ditambahkan.");
+        return result;
+    } 
 }

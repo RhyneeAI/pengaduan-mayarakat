@@ -4,6 +4,7 @@ import Controller.PengaduanController;
 import Lib.ArrayBuilder;
 import com.toedter.calendar.JDateChooser;
 import Helper.TimeHelper;
+import View.Content.Pengaduan.KomenPengaduanForm;
 import View.Content.Pengaduan.ProsesPengaduanForm;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -67,8 +68,10 @@ public class DashboardUserContent extends JInternalFrame {
 
         // Paging Panel
         JPanel pagingPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        btnPrev = new JButton("Prev");
-        btnNext = new JButton("Next");
+        btnPrev = new JButton("Sebelumnya");
+        btnPrev.setPreferredSize(new Dimension(150, 25));
+        btnNext = new JButton("Selanjutnya");
+        btnNext.setPreferredSize(new Dimension(150, 25));
         pagingPanel.add(btnPrev);
         pagingPanel.add(btnNext);
         add(pagingPanel, BorderLayout.SOUTH);
@@ -164,7 +167,7 @@ public class DashboardUserContent extends JInternalFrame {
 
         // Body (potong jika terlalu panjang)
         String body = data.get("body").toString();
-        String shortBody = body.length() > 120 ? body.substring(0, 120) + "..." : body;
+        String shortBody = body.length() > 80 ? body.substring(0, 80) + "..." : body;
         JTextArea txtBody = new JTextArea(shortBody);
         txtBody.setLineWrap(true);
         txtBody.setWrapStyleWord(true);
@@ -176,11 +179,11 @@ public class DashboardUserContent extends JInternalFrame {
         // Tombol lihat detail
         JButton btnDetail = new JButton("Lihat Detail");
         btnDetail.addActionListener(e -> {
-            ProsesPengaduanForm detailForm = new ProsesPengaduanForm(desktopPane, data.get("id").toString());
+            KomenPengaduanForm komenForm = new KomenPengaduanForm(desktopPane, data.get("id").toString());
             desktopPane.removeAll();
             desktopPane.repaint();
-            desktopPane.add(detailForm);
-            detailForm.setVisible(true);
+            desktopPane.add(komenForm);
+            komenForm.setVisible(true);
         });
 
         JPanel topPanel = new JPanel(new BorderLayout());
