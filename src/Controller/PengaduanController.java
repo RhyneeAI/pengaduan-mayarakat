@@ -36,8 +36,8 @@ public class PengaduanController {
         return pm.getKomenPengaduanById(idPengaduan);
     }
     
-    public List<Map<String, Object>> getPengaduanByUserId() {
-        return pm.getPengaduanByUserId();
+    public List<Map<String, Object>> getPengaduanByUserId(ArrayBuilder[] condition) {
+        return pm.getPengaduanByUserId(condition);
     }
     
     public Map<String, Object> setPengaduan(List<ArrayBuilder> pengaduanData) {

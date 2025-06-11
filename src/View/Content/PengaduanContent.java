@@ -4,6 +4,7 @@ import Controller.PengaduanController;
 import Helper.ColorHelper;
 import Helper.TimeHelper;
 import Helper.UIHelper;
+import Lib.ArrayBuilder;
 import View.Content.Pengaduan.EditPengaduanForm;
 import View.Content.Pengaduan.TambahPengaduanForm;
 import com.toedter.calendar.JDateChooser;
@@ -16,6 +17,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -107,6 +109,10 @@ public class PengaduanContent extends JInternalFrame {
         JButton btnFilter = new JButton("Filter");
         panelForm.add(btnFilter, gbc);
         
+        btnFilter.addActionListener((ActionEvent e) -> {
+            loadDataTable(TimeHelper.setYMD(dateChooserStart.getDate()), TimeHelper.setYMD(dateChooserEnd.getDate()));
+        });
+        
         // Spacer
         gbc.gridx = 5;
         panelForm.add(new JLabel(""), gbc);
@@ -138,7 +144,7 @@ public class PengaduanContent extends JInternalFrame {
             }
         };
         
-        loadDataTable();
+        loadDataTable(TimeHelper.setYMD(dateChooserStart.getDate()), TimeHelper.setYMD(dateChooserEnd.getDate()));
          // Inisialisasi tabel setelah isi data
         table = new JTable(tableModel);
         table.setRowHeight(24);
@@ -200,8 +206,12 @@ public class PengaduanContent extends JInternalFrame {
         UIHelper.syncInternalFrameWithDesktop(this, desktopPane, outerPanel, wrapperPanel);
     }
     
-    public final void loadDataTable() {
-        List<Map<String, Object>> pengaduanList = pc.getPengaduanByUserId();
+    public final void loadDataTable(String from, String to) {
+        ArrayBuilder[] condition = {
+            new ArrayBuilder("date >=", from),
+            new ArrayBuilder("date <=", to)
+        };
+        List<Map<String, Object>> pengaduanList = pc.getPengaduanByUserId(condition);
 
         tableModel.setRowCount(0); // Reset
         int no = 1;
@@ -316,7 +326,7 @@ public class PengaduanContent extends JInternalFrame {
                         String id = table.getModel().getValueAt(modelRow, 6).toString();
                         pc.deletePengaduan(id);
                         fireEditingStopped();
-                        loadDataTable();
+                        loadDataTable(TimeHelper.setYMD(dateChooserStart.getDate()), TimeHelper.setYMD(dateChooserEnd.getDate()));
                     }
                 }
             });

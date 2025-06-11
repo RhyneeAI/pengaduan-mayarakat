@@ -59,6 +59,21 @@ public class PengaduanModel {
         return qb.first();
     }
     
+    public List<Map<String, Object>> getPengaduanByUserId(ArrayBuilder[] whereDate) {
+        DBQueryBuilder qb = new DBQueryBuilder();
+        ArrayBuilder[] condition = {
+            new ArrayBuilder("c.user_id", Session.get("id"))
+        };
+
+        qb.select("c.*, cc.category_name")
+          .from("complaints as c")
+          .leftJoin("complaint_categories as cc", "c.category_id = cc.id")
+          .where(condition)
+          .whereDate(whereDate);
+
+        return qb.get();
+    }
+    
     public Map<String, Object> getTanggapanById(String complaintId) {
         DBQueryBuilder qb = new DBQueryBuilder();
         ArrayBuilder[] condition = {
@@ -98,20 +113,6 @@ public class PengaduanModel {
           .where(condition);
         
 //        System.out.println(qb.buildQuery());
-
-        return qb.get();
-    }
-    
-    public List<Map<String, Object>> getPengaduanByUserId() {
-        DBQueryBuilder qb = new DBQueryBuilder();
-        ArrayBuilder[] condition = {
-            new ArrayBuilder("c.user_id", Session.get("id"))
-        };
-
-        qb.select("c.*, cc.category_name")
-          .from("complaints as c")
-          .leftJoin("complaint_categories as cc", "c.category_id = cc.id")
-          .where(condition);
 
         return qb.get();
     }
