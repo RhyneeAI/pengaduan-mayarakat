@@ -5,10 +5,7 @@ import Helper.ColorHelper;
 import Helper.TimeHelper;
 import Helper.UIHelper;
 import Lib.ArrayBuilder;
-import Lib.Session;
-import View.Content.Pengaduan.EditPengaduanForm;
 import View.Content.Pengaduan.ProsesPengaduanForm;
-import View.Content.Pengaduan.TambahPengaduanForm;
 import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -19,6 +16,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -111,6 +109,10 @@ public class PengaduanManagement extends JInternalFrame {
         JButton btnFilter = new JButton("Filter");
         panelForm.add(btnFilter, gbc);
         
+        btnFilter.addActionListener((ActionEvent e) -> {
+            loadDataTable();
+        });
+        
         gbc.gridx = 5;
         gbc.gridwidth = 2;
         panelForm.add(new JLabel(""), gbc);
@@ -193,9 +195,20 @@ public class PengaduanManagement extends JInternalFrame {
     
     public final void loadDataTable() {
         ArrayBuilder[] condition = {
-            new ArrayBuilder("date >=", dateChooserStart.toString()),
-            new ArrayBuilder("date <=", dateChooserEnd.toString())
+            new ArrayBuilder("date >=", TimeHelper.setYMD(dateChooserStart.getDate())),
+            new ArrayBuilder("date <=", TimeHelper.setYMD(dateChooserEnd.getDate()))
         };
+        
+        Date startDate = dateChooserStart.getDate();
+        Date endDate = dateChooserEnd.getDate();
+
+        if (startDate != null && endDate != null) {
+            if (startDate.after(endDate)) {
+                JOptionPane.showMessageDialog(null, "Tanggal mulai tidak boleh lebih dari tanggal akhir.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+
         List<Map<String, Object>> pengaduanList = pc.getPengaduan(condition, new ArrayBuilder("newest", ""));
 
         tableModel.setRowCount(0); // Reset
