@@ -1,18 +1,14 @@
 package Controller;
 
-import Model.UserModel;  
-import java.util.HashMap;
-import java.util.Map;
-import View.RegisterForm;
 import Helper.PasswordHelper;
 import Helper.ValidationHelper;
 import Lib.ArrayBuilder;
 import Lib.Session;
-import Model.DBQueryBuilder;
-import java.sql.SQLException;
-import java.sql.Statement;
+import Model.UserModel;
+import View.RegisterForm;
+import java.util.HashMap;
 import java.util.List;
-import javax.swing.JOptionPane;
+import java.util.Map;
 
 public class UserController {
     public static void main(String[] args) {
@@ -36,10 +32,17 @@ public class UserController {
         String username = userMap.get("username");
         String password = userMap.get("password");
 
-        UserModel user = new UserModel();
-        Boolean r = user.login(username, password);
-        
         Map<String, Object> result = new HashMap<>();
+        
+        UserModel user = new UserModel();
+        Map<String, Object> checkUser = user.getUserByUsername(username);
+        if (!Boolean.parseBoolean(checkUser.get("is_active").toString())) {
+            result.put("status", false);
+            result.put("message", "Login Gagal! Akun anda belum diaktivasi oleh Petugas.");
+            return result;
+        }
+    
+        Boolean r = user.login(username, password);
         result.put("status", r);
         result.put("message", r ? "Login berhasil! Selamat datang, " + username : "Login Gagal! Username atau password salah.");
         return result;

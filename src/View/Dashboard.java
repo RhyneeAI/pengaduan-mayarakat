@@ -58,8 +58,8 @@ public class Dashboard extends JFrame {
         JButton btnDashboardAdmin = new JButton("Dashboard");
         JButton btnDashboardUser = new JButton("Beranda");
         JButton btnKategori = new JButton("Kategori");
-        JButton btnManajemenUser = new JButton("Manajemen User");
-        JButton btnManajemenPengaduan = new JButton("Manajemen Pengaduan");
+        JButton btnManajemenUser = new JButton("User");
+        JButton btnManajemenPengaduan = new JButton("Pengaduan");
         JButton btnPengaduan = new JButton("Pengaduan");
         styleSidebarButton(btnDashboardAdmin, new Color(52, 73, 94));
         styleSidebarButton(btnDashboardUser, new Color(52, 73, 94));
@@ -67,9 +67,14 @@ public class Dashboard extends JFrame {
         styleSidebarButton(btnManajemenPengaduan, new Color(41, 128, 185));
         styleSidebarButton(btnKategori, new Color(41, 128, 185));
         styleSidebarButton(btnPengaduan, new Color(41, 128, 185));
+        
+        JLabel lblManajemen = new JLabel("Manajemen");
+        lblManajemen.setForeground(Color.WHITE);
+        lblManajemen.setFont(new Font("SansSerif", Font.BOLD, 14));
 
         if("ADMIN".equals(Session.get("access_level"))) {
             topMenuPanel.add(btnDashboardAdmin);
+            topMenuPanel.add(lblManajemen);
             topMenuPanel.add(btnManajemenUser);
             topMenuPanel.add(btnManajemenPengaduan);
             topMenuPanel.add(btnKategori);
