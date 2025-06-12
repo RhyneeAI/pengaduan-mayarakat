@@ -117,8 +117,16 @@ public class Login extends JFrame {
         add(mainPanel);
         setVisible(true);
     }
-
+    
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+            UIManager.put("Table.showUIManager.setLookAndFeel(new FlatLightLaf());Grid", true);
+//            UIManager.put("Table.gridColor", Color.LIGHT_GRAY); 
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(Login::new);
     }
 }

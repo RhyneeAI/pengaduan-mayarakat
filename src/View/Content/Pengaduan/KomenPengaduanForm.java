@@ -163,8 +163,11 @@ public class KomenPengaduanForm extends JInternalFrame {
         String tanggapanText = (tanggapanData != null && tanggapanData.get("summary") != null)
             ? tanggapanData.get("summary").toString()
             : "-";
-        JLabel lblTanggapanPengaduan = new JLabel("<html><div style='width:90%'>" + tanggapanText.replace("\n", "<br>") + "</div></html>");
+
+//        String formattedText = tanggapanText.replaceAll("(.{30})", "$1<br>");
+        JLabel lblTanggapanPengaduan = new JLabel("<html><div style='width:90%'>" + tanggapanText + "</div></html>");
         lblTanggapanPengaduan.setFont(txtFont);
+
         gbc.gridx = 1;
         gbc.gridwidth = 3;
         panelForm.add(lblTanggapanPengaduan, gbc);

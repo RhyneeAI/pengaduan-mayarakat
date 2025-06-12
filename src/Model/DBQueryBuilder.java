@@ -90,10 +90,14 @@ public class DBQueryBuilder {
     }
     
     public DBQueryBuilder orderByCustom(String customOrder) {
-        order_by.append("ORDER BY ").append(customOrder);
+        if (order_by.length() > 0) {
+            order_by.append(", ");
+        } else {
+            order_by.append("ORDER BY ");
+        }
+        order_by.append(customOrder);
         return this;
     }
-
 
     // INSERT
     public DBQueryBuilder insert(String table, ArrayBuilder[] data) {

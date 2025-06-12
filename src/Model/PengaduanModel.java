@@ -35,10 +35,12 @@ public class PengaduanModel {
           .leftJoin("users as u", "c.user_id = u.id");
         
         if("newest".equals(orderBy.key)) {
-            qb.orderByCustom("CASE WHEN c.status = 'New' THEN 0 ELSE 1 END, c.status DESC");
+            qb.orderByCustom("CASE WHEN c.status = 'New' THEN 0 ELSE 1 END, c.status DESC")
+              .orderByCustom("c.created_at DESC");
         } else {
             qb.orderBy(orderBy.key, orderBy.value);
         }
+
         
         return qb.get();
     }

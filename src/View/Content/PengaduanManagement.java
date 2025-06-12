@@ -326,7 +326,7 @@ public class PengaduanManagement extends JInternalFrame {
             int modelRow = table.convertRowIndexToModel(row);
             String status = table.getModel().getValueAt(modelRow, 4).toString();
 
-            if ("New".equalsIgnoreCase(status)) {
+            if ("Terbaru".equalsIgnoreCase(status)) {
                 this.add(buttonApprove);
                 this.add(buttonNotApprove);
             } else {
@@ -384,8 +384,8 @@ public class PengaduanManagement extends JInternalFrame {
                     currentId = table.getModel().getValueAt(modelRow, 6).toString();
                     
                     String id = table.getModel().getValueAt(modelRow, 6).toString();
-                    String status = table.getModel().getValueAt(modelRow, 5).toString();
-                    if(status == "Selesai") {
+                    String status = table.getModel().getValueAt(modelRow, 4).toString();
+                    if(!status.equals("Selesai")) {
                         List<ArrayBuilder> data = new ArrayList<>();
                         data.add(new ArrayBuilder("status", "Process"));
                         pc.updatePengaduan(id, data);
@@ -405,8 +405,9 @@ public class PengaduanManagement extends JInternalFrame {
             panel.removeAll();
             int modelRow = table.convertRowIndexToModel(row);
             String status = table.getModel().getValueAt(modelRow, 4).toString();
+            System.out.println(status);
 
-            if ("New".equalsIgnoreCase(status)) {
+            if (status.equals("Terbaru")) {
                 panel.add(buttonApprove);
                 panel.add(buttonNotApprove);
             } else {

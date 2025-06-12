@@ -2,6 +2,18 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/PengaduanManagement.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/Pengaduan/TambahPengaduanForm.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/Pengaduan/KomenPengaduanForm.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Controller/PengaduanController.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Model/DBQueryBuilder.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Login.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Register.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/PengaduanContent.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Content/LaporanPengaduanContent.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/View/Dashboard.java</file>
+            <file>file:/home/luhung/NetBeansProjects/PengaduanMasyarakat/src/Model/PengaduanModel.java</file>
+        </group>
     </open-files>
 </project-private>

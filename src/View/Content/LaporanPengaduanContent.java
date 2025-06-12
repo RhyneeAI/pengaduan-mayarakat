@@ -288,8 +288,17 @@ public class LaporanPengaduanContent extends JInternalFrame {
 
             document.add(pdfTable);
             document.close();
+            
+            try {
+                // Buka file PDF secara otomatis di Linux
+                String fullPath = filePath + " " + from + " " + end;
+                java.awt.Desktop.getDesktop().open(new java.io.File(fullPath));
+            } catch (Exception ex) {
+                // Jika gagal, tampilkan pesan error (misal xdg-open tidak tersedia)
+                JOptionPane.showMessageDialog(null, "PDF berhasil dibuat, tapi gagal membuka otomatis: " + ex.getMessage());
+            }
 
-            JOptionPane.showMessageDialog(null, "PDF berhasil dibuat di: " + filePath);
+//            JOptionPane.showMessageDialog(null, "PDF berhasil dibuat di: " + filePath);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Gagal export PDF: " + e.getMessage());
@@ -366,7 +375,7 @@ public class LaporanPengaduanContent extends JInternalFrame {
             label.setOpaque(true);
             label.setBackground(Color.WHITE);
 
-            String status = value.toString().toLowerCase();
+            String status = value.toString();
 
             switch (status) {
                 case "Terbaru" -> label.setForeground(ColorHelper.INFO);

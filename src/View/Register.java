@@ -2,7 +2,9 @@ package View;
 
 import Controller.UserController;
 import Helper.MessageHelper;
+import Helper.TimeHelper;
 import Lib.ArrayBuilder;
+import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -15,6 +17,7 @@ import com.toedter.calendar.JDateChooser;
 import java.util.Date;
 
 public class Register extends JFrame {
+    TimeHelper th = new TimeHelper();
     public Register() {
         try {
             UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatLightLaf());
@@ -63,7 +66,9 @@ public class Register extends JFrame {
 
         JLabel lblTglLahir = new JLabel("Tanggal Lahir ");
         JDateChooser dateChooser = new JDateChooser();
-        dateChooser.setDateFormatString("yyyy-MM-dd");
+        dateChooser.getDateEditor().setEnabled(false);
+        dateChooser.setPreferredSize(new Dimension(150, 25));
+        dateChooser.setDate(th.getFirstDayOfMonth());
 
         JLabel lblKategori = new JLabel("Kategori Usia ");
         JComboBox<String> cmbKategori = new JComboBox<>(new String[]{"Anak", "Remaja", "Dewasa", "Lanjut Usia"});
@@ -96,18 +101,15 @@ public class Register extends JFrame {
         lblLogin.setHorizontalAlignment(SwingConstants.CENTER);
 
         // Dynamic Age Category
-        dateChooser.getDateEditor().getUiComponent().addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                Date selectedDate = dateChooser.getDate();
-                if (selectedDate != null) {
-                    LocalDate birthDate = new java.sql.Date(selectedDate.getTime()).toLocalDate();
-                    int age = Period.between(birthDate, LocalDate.now()).getYears();
-                    if (age <= 12) cmbKategori.setSelectedItem("Anak");
-                    else if (age <= 17) cmbKategori.setSelectedItem("Remaja");
-                    else if (age <= 59) cmbKategori.setSelectedItem("Dewasa");
-                    else cmbKategori.setSelectedItem("Lanjut Usia");
-                }
+        dateChooser.getDateEditor().getUiComponent().addPropertyChangeListener("date", evt -> {
+            Date selectedDate = dateChooser.getDate();
+            if (selectedDate != null) {
+                LocalDate birthDate = new java.sql.Date(selectedDate.getTime()).toLocalDate();
+                int age = Period.between(birthDate, LocalDate.now()).getYears();
+                if (age <= 12) cmbKategori.setSelectedItem("Anak");
+                else if (age <= 17) cmbKategori.setSelectedItem("Remaja");
+                else if (age <= 59) cmbKategori.setSelectedItem("Dewasa");
+                else cmbKategori.setSelectedItem("Lanjut Usia");
             }
         });
 
@@ -225,8 +227,16 @@ public class Register extends JFrame {
             }
         });
     }
-
+    
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+            UIManager.put("Table.showUIManager.setLookAndFeel(new FlatLightLaf());Grid", true);
+//            UIManager.put("Table.gridColor", Color.LIGHT_GRAY); 
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(Register::new);
     }
 }
