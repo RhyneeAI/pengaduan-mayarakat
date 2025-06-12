@@ -290,9 +290,9 @@ public class PengaduanManagement extends JInternalFrame {
             switch (status) {
                 case "Terbaru" -> label.setForeground(ColorHelper.INFO);
                 case "Diproses" -> label.setForeground(ColorHelper.WARNING);
-                case "Diterima" -> label.setForeground(ColorHelper.SUCCESS);
+                case "Diterima" -> label.setForeground(ColorHelper.PRIMARY);
                 case "Ditolak" -> label.setForeground(ColorHelper.DANGER);
-                default -> label.setForeground(ColorHelper.PRIMARY);
+                default -> label.setForeground(ColorHelper.SUCCESS);
             }
 
             return label;
