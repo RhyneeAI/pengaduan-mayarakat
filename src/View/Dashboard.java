@@ -5,6 +5,7 @@ import View.Content.PengaduanContent;
 import com.formdev.flatlaf.FlatLightLaf;
 import Controller.UserController;
 import Helper.MessageHelper;
+import Lib.Session;
 import View.Content.DashboardAdminContent;
 import View.Content.DashboardUserContent;
 import View.Content.KategoriContent;
@@ -54,8 +55,8 @@ public class Dashboard extends JFrame {
         topMenuPanel.setBackground(new Color(35, 45, 65));
         topMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
 
-        JButton btnDashboardAdmin = new JButton("Dashboard A");
-        JButton btnDashboardUser = new JButton("Dashboard U");
+        JButton btnDashboardAdmin = new JButton("Dashboard");
+        JButton btnDashboardUser = new JButton("Beranda");
         JButton btnKategori = new JButton("Kategori");
         JButton btnManajemenUser = new JButton("Manajemen User");
         JButton btnManajemenPengaduan = new JButton("Manajemen Pengaduan");
@@ -67,12 +68,15 @@ public class Dashboard extends JFrame {
         styleSidebarButton(btnKategori, new Color(41, 128, 185));
         styleSidebarButton(btnPengaduan, new Color(41, 128, 185));
 
-        topMenuPanel.add(btnDashboardAdmin);
-        topMenuPanel.add(btnDashboardUser);
-        topMenuPanel.add(btnManajemenUser);
-        topMenuPanel.add(btnManajemenPengaduan);
-        topMenuPanel.add(btnKategori);
-        topMenuPanel.add(btnPengaduan);
+        if("ADMIN".equals(Session.get("access_level"))) {
+            topMenuPanel.add(btnDashboardAdmin);
+            topMenuPanel.add(btnManajemenUser);
+            topMenuPanel.add(btnManajemenPengaduan);
+            topMenuPanel.add(btnKategori);
+        } else {
+            topMenuPanel.add(btnDashboardUser);
+            topMenuPanel.add(btnPengaduan);
+        }
 
         // Panel bawah sidebar (logout)
         JPanel bottomMenuPanel = new JPanel(new BorderLayout());
