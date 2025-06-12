@@ -5,7 +5,6 @@ import Helper.ColorHelper;
 import Helper.TimeHelper;
 import Helper.UIHelper;
 import Lib.ArrayBuilder;
-import View.Content.Pengaduan.ProsesPengaduanForm;
 import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -22,23 +21,22 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 
 
-public class PengaduanManagement extends JInternalFrame {
+public class LaporanPengaduanContent extends JInternalFrame {
     public final JTable table;
     private final DefaultTableModel tableModel;
     private JDateChooser dateChooserStart;
     private JDateChooser dateChooserEnd;
     public JDesktopPane desktopPane;
+    private JComboBox<String> comboStatus;
     
     PengaduanController pc = new PengaduanController();
     TimeHelper th = new TimeHelper();
     
     private String currentId = null;
 
-    public PengaduanManagement(JDesktopPane desktopPane) {
+    public LaporanPengaduanContent(JDesktopPane desktopPane) {
         super("", false, false, false, false);
         this.desktopPane = desktopPane;
         Color bgColor = Color.WHITE;
@@ -57,7 +55,7 @@ public class PengaduanManagement extends JInternalFrame {
         gbc.weightx = 1.0;
 
         // === ROW 0: Title ===
-        JLabel titleLabel = new JLabel("Manajemen Pengaduan");
+        JLabel titleLabel = new JLabel("Laporan Pengaduan");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -77,7 +75,7 @@ public class PengaduanManagement extends JInternalFrame {
         gbc.anchor = GridBagConstraints.WEST;
 
         // Label Tanggal Awal
-        JLabel tglAwal = new JLabel("Tanggal Awal");
+        JLabel tglAwal = new JLabel("Tanggal");
         gbc.gridx = 0;
         gbc.weightx = 0;
         panelForm.add(tglAwal, gbc);
@@ -105,8 +103,16 @@ public class PengaduanManagement extends JInternalFrame {
         dateChooserEnd.setDate(th.getDateNow());
         panelForm.add(dateChooserEnd, gbc);
 
-        // Tombol Filter
         gbc.gridx = 4;
+        gbc.weightx = 0.2;
+        comboStatus = new JComboBox<>(new String[]{
+            "Semua Status", "Terbaru", "Diproses", "Diterima", "Ditolak", "Selesai"
+        });
+        comboStatus.setPreferredSize(new Dimension(120, 25));
+        panelForm.add(comboStatus, gbc);
+
+        // Tombol Filter
+        gbc.gridx = 5;
         gbc.weightx = 0.2;
         JButton btnFilter = new JButton("Filter");
         panelForm.add(btnFilter, gbc);
@@ -141,12 +147,7 @@ public class PengaduanManagement extends JInternalFrame {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
 
-        tableModel = new DefaultTableModel(new String[]{"No", "Tanggal", "Judul", "Kategori", "Status", "Aksi", "ID"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 5; 
-            }
-        };
+        tableModel = new DefaultTableModel(new String[]{"No", "Tanggal", "Judul", "Kategori", "Status", "ID"}, 0);
         
         loadDataTable();
          // Inisialisasi tabel setelah isi data
@@ -161,12 +162,8 @@ public class PengaduanManagement extends JInternalFrame {
         // Kolom "Status" pakai renderer warna
         table.getColumnModel().getColumn(4).setCellRenderer(new StatusCellRenderer());
 
-        // Kolom "Aksi" pakai tombol
-        table.getColumnModel().getColumn(5).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(5).setCellEditor(new ButtonPanelEditor(desktopPane));
-
         // Sembunyikan kolom ID (kolom ke-6 / index 6)
-        table.removeColumn(table.getColumnModel().getColumn(6));
+        table.removeColumn(table.getColumnModel().getColumn(5));
         table.setShowGrid(true);
         table.setBackground(Color.WHITE);
         table.setFillsViewportHeight(true); 
@@ -177,7 +174,6 @@ public class PengaduanManagement extends JInternalFrame {
         table.getColumnModel().getColumn(2).setPreferredWidth(200); // Title
         table.getColumnModel().getColumn(3).setPreferredWidth(150); // Category
         table.getColumnModel().getColumn(4).setPreferredWidth(80);  // Status
-        table.getColumnModel().getColumn(5).setPreferredWidth(160); // Aksi (Edit button)
 
         JScrollPane tableScrollPane = new JScrollPane(table);
         tableScrollPane.setBorder(null);
@@ -304,11 +300,28 @@ public class PengaduanManagement extends JInternalFrame {
     }
     
     public final void loadDataTable() {
-        ArrayBuilder[] condition = {
-            new ArrayBuilder("date >=", TimeHelper.setYMD(dateChooserStart.getDate())),
-            new ArrayBuilder("date <=", TimeHelper.setYMD(dateChooserEnd.getDate()))
-        };
+         ArrayList<ArrayBuilder> conditionList = new ArrayList<>();
+        conditionList.add(new ArrayBuilder("date >=", TimeHelper.setYMD(dateChooserStart.getDate())));
+        conditionList.add(new ArrayBuilder("date <=", TimeHelper.setYMD(dateChooserEnd.getDate())));
 
+        // Ambil status dari combo box
+        String selectedStatus = (String) comboStatus.getSelectedItem();
+        if (selectedStatus != null && !"Semua Status".equals(selectedStatus)) {
+            // Mapping ke value di database
+            String dbStatus = switch (selectedStatus) {
+                case "Terbaru" -> "New";
+                case "Diproses" -> "Process";
+                case "Diterima" -> "Accepted";
+                case "Ditolak" -> "Rejected";
+                case "Selesai" -> "Finished";
+                default -> "";
+            };
+            if (!dbStatus.isEmpty()) {
+                conditionList.add(new ArrayBuilder("status", dbStatus));
+            }
+        }
+
+        ArrayBuilder[] condition = conditionList.toArray(new ArrayBuilder[0]);
         List<Map<String, Object>> pengaduanList = pc.getPengaduan(condition, new ArrayBuilder("newest", ""));
 
         tableModel.setRowCount(0); // Reset
@@ -320,15 +333,23 @@ public class PengaduanManagement extends JInternalFrame {
                 if (title.length() > 40) {
                     title = title.substring(0, 40) + "...";
                 }
+                
+                String status = row.get("status").toString();
+                switch (status) {
+                    case "new" -> status = "Terbaru";
+                    case "process" -> status = "Diproses";
+                    case "accepted" -> status = "Diterima";
+                    case "rejected" -> status = "Ditolak";
+                    case "Finished" -> status = "Selesai";
+                }
 
                 Object[] rowData = new Object[]{
                     no++,
                     TimeHelper.humanizeDate((Date) row.get("date")),
                     title,
                     row.get("category_name"),
-                    row.get("status"),
-                    "Terima",
-                    row.get("id") // kolom ke-6 (index 6), disembunyikan
+                    status,
+                    row.get("id") // kolom ke-5 (index 5), disembunyikan
                 };
                 tableModel.addRow(rowData);
             }
@@ -358,125 +379,6 @@ public class PengaduanManagement extends JInternalFrame {
             }
 
             return label;
-        }
-    }
-
-    // Button Renderer (tampilkan tombol dengan padding di tengah cell)
-    public class ButtonRenderer extends JPanel implements TableCellRenderer {
-        private final JButton buttonApprove = new JButton("Terima");
-        private final JButton buttonNotApprove = new JButton("Tolak");
-        private final JButton buttonView = new JButton("Lihat");
-
-        public ButtonRenderer() {
-            setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
-            setPreferredSize(new Dimension(160, 30));
-            buttonApprove.setPreferredSize(new Dimension(70, 20));
-            buttonNotApprove.setPreferredSize(new Dimension(70, 20));
-            buttonView.setPreferredSize(new Dimension(70, 20));
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                    boolean isSelected, boolean hasFocus,
-                                                    int row, int column) {
-            this.removeAll();
-            this.setOpaque(true);
-            this.setBackground(Color.WHITE);
-            this.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, table.getGridColor()));
-
-            // Ambil status dari model (kolom ke-4/index 4)
-            int modelRow = table.convertRowIndexToModel(row);
-            String status = table.getModel().getValueAt(modelRow, 4).toString();
-
-            if ("New".equalsIgnoreCase(status)) {
-                this.add(buttonApprove);
-                this.add(buttonNotApprove);
-            } else {
-                this.add(buttonView);
-            }
-            return this;
-        }
-    }
-
-    class ButtonPanelEditor extends AbstractCellEditor implements TableCellEditor {
-        private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        private final JButton buttonApprove = new JButton("Terima");
-        private final JButton buttonNotApprove = new JButton("Tolak");
-        private final JButton buttonView = new JButton("Lihat");
-
-        public ButtonPanelEditor(JDesktopPane desktopPane) {
-            panel.setPreferredSize(new Dimension(160, 30));
-
-            buttonApprove.addActionListener(e -> {
-                int confirm = JOptionPane.showConfirmDialog(panel, "Terima pengaduan?");
-                if (confirm == JOptionPane.YES_OPTION) {
-                    int selectedRow = table.getSelectedRow();
-                    if (selectedRow != -1) {
-                        int modelRow = table.convertRowIndexToModel(selectedRow);
-                        String id = table.getModel().getValueAt(modelRow, 6).toString();
-                        List<ArrayBuilder> data = new ArrayList<>();
-                        data.add(new ArrayBuilder("status", "Accepted"));
-                        pc.updatePengaduan(id, data);
-                        fireEditingStopped();
-                        loadDataTable();
-                    }
-                }
-            });
-
-            buttonNotApprove.addActionListener(e -> {
-                int confirm = JOptionPane.showConfirmDialog(panel, "Tolak pengaduan?");
-                if (confirm == JOptionPane.YES_OPTION) {
-                    int selectedRow = table.getSelectedRow();
-                    if (selectedRow != -1) {
-                        int modelRow = table.convertRowIndexToModel(selectedRow);
-                        String id = table.getModel().getValueAt(modelRow, 6).toString();
-                        List<ArrayBuilder> data = new ArrayList<>();
-                        data.add(new ArrayBuilder("status", "Rejected"));
-                        pc.updatePengaduan(id, data);
-                        fireEditingStopped();
-                        loadDataTable();
-                    }
-                }
-            });
-
-            buttonView.addActionListener(e -> {
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow != -1) {
-                    int modelRow = table.convertRowIndexToModel(selectedRow);
-                    currentId = table.getModel().getValueAt(modelRow, 6).toString();
-                    
-                    String id = table.getModel().getValueAt(modelRow, 6).toString();
-                    List<ArrayBuilder> data = new ArrayList<>();
-                    data.add(new ArrayBuilder("status", "Process"));
-                    pc.updatePengaduan(id, data);
-
-                    ProsesPengaduanForm form = new ProsesPengaduanForm(desktopPane, currentId);
-                    desktopPane.removeAll();
-                    desktopPane.repaint();
-                    desktopPane.add(form);
-                    form.setVisible(true);
-                }
-            });
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            panel.removeAll();
-            int modelRow = table.convertRowIndexToModel(row);
-            String status = table.getModel().getValueAt(modelRow, 4).toString();
-
-            if ("New".equalsIgnoreCase(status)) {
-                panel.add(buttonApprove);
-                panel.add(buttonNotApprove);
-            } else {
-                panel.add(buttonView);
-            }
-            return panel;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return null;
         }
     }
 }

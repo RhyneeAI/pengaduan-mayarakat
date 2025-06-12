@@ -126,11 +126,6 @@ public class PengaduanManagement extends JInternalFrame {
         });
         
         gbc.gridx = 5;
-        gbc.weightx = 0.2;
-        JButton btnExport = new JButton("Export PDF");
-        panelForm.add(btnExport, gbc);
-        
-        gbc.gridx = 5;
         gbc.gridwidth = 2;
         panelForm.add(new JLabel(""), gbc);
 
@@ -184,25 +179,6 @@ public class PengaduanManagement extends JInternalFrame {
         tableScrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panelForm.add(tableScrollPane, gbc);
         
-        
-        // Export PDF
-        btnExport.addActionListener((ActionEvent e) -> {
-            Date startDate = dateChooserStart.getDate();
-            Date endDate = dateChooserEnd.getDate();
-
-            if (startDate != null && endDate != null) {
-                if (startDate.after(endDate)) {
-                    JOptionPane.showMessageDialog(null, "Tanggal mulai tidak boleh lebih dari tanggal akhir.", "Peringatan", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-            }
-            loadDataTable();
-            
-            String userHome = System.getProperty("user.home");
-            String filePath = userHome + "/Downloads/laporan_pengaduan.pdf";
-            exporToPDF(table, filePath);
-        });
-
         // === Wrapper Panel ===
         JPanel wrapperPanel = new JPanel(new GridBagLayout());
         wrapperPanel.setBackground(bgColor);
@@ -227,80 +203,6 @@ public class PengaduanManagement extends JInternalFrame {
         add(outerPanel, BorderLayout.CENTER);
 
         UIHelper.syncInternalFrameWithDesktop(this, desktopPane, outerPanel, wrapperPanel);
-    }
-    
-    public void exporToPDF(JTable table, String filePath) {
-        try {
-            String from = TimeHelper.humanizeDate(dateChooserStart.getDate());
-            String end = TimeHelper.humanizeDate(dateChooserEnd.getDate());
-            
-            com.lowagie.text.Document document = new com.lowagie.text.Document();
-            com.lowagie.text.pdf.PdfWriter.getInstance(document, new java.io.FileOutputStream(filePath + " " + from + " " + end));
-            document.open();
-
-            // Judul dokumen
-            com.lowagie.text.Paragraph title = new com.lowagie.text.Paragraph(
-                "Laporan Pengaduan",
-                new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 18, com.lowagie.text.Font.BOLD)
-            );
-            title.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
-            title.setSpacingAfter(2);
-            document.add(title);
-            
-            
-            com.lowagie.text.Paragraph period = new com.lowagie.text.Paragraph(
-                "Per tanggal " + from + " s/d " + end,
-                new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 15, com.lowagie.text.Font.BOLD)
-            );
-            period.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
-            period.setSpacingAfter(40);
-            document.add(period);
-
-            // Kolom yang akan diexport (tanpa "Aksi")
-            int[] exportCols = {0, 1, 2, 3, 4}; // No, Tanggal, Judul, Kategori, Status
-
-            com.lowagie.text.pdf.PdfPTable pdfTable = new com.lowagie.text.pdf.PdfPTable(exportCols.length);
-            pdfTable.setWidthPercentage(100);
-            pdfTable.setWidths(new float[]{15, 50, 130, 60, 40}); // Atur lebar kolom
-
-            // Header
-            for (int col : exportCols) {
-                com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(
-                    new com.lowagie.text.Phrase(table.getColumnName(col))
-                );
-                
-                cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
-                cell.setBackgroundColor(new java.awt.Color(220, 220, 220));
-                cell.setFixedHeight(20f);
-                pdfTable.addCell(cell);
-            }
-
-            // Rows
-            for (int row = 0; row < table.getRowCount(); row++) {
-                for (int col : exportCols) {
-                    Object value = table.getValueAt(row, col);
-                    com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(
-                        new com.lowagie.text.Phrase(value != null ? value.toString() : "")
-                    );
-                    
-                    if(col == 2) {
-                        cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_LEFT);
-                    } else {
-                        cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
-                    }
-                    cell.setFixedHeight(18f);
-                    pdfTable.addCell(cell);
-                }
-            }
-
-            document.add(pdfTable);
-            document.close();
-
-            JOptionPane.showMessageDialog(null, "PDF berhasil dibuat di: " + filePath);
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Gagal export PDF: " + e.getMessage());
-        }
     }
     
     public final void loadDataTable() {

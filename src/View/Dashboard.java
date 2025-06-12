@@ -9,6 +9,7 @@ import Lib.Session;
 import View.Content.DashboardAdminContent;
 import View.Content.DashboardUserContent;
 import View.Content.KategoriContent;
+import View.Content.LaporanPengaduanContent;
 import View.Content.PengaduanManagement;
 import View.Content.UserManagementContent;
 import javax.swing.*;
@@ -47,11 +48,11 @@ public class Dashboard extends JFrame {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BorderLayout());
         sidebar.setBackground(new Color(35, 45, 65));
-        sidebar.setPreferredSize(new Dimension(180, 0));
+        sidebar.setPreferredSize(new Dimension(200, 0));
 
         // Panel atas sidebar
         JPanel topMenuPanel = new JPanel();
-        topMenuPanel.setLayout(new GridLayout(6, 1, 0, 5));
+        topMenuPanel.setLayout(new GridLayout(7, 1, 0, 5));
         topMenuPanel.setBackground(new Color(35, 45, 65));
         topMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
 
@@ -61,16 +62,22 @@ public class Dashboard extends JFrame {
         JButton btnManajemenUser = new JButton("User");
         JButton btnManajemenPengaduan = new JButton("Pengaduan");
         JButton btnPengaduan = new JButton("Pengaduan");
+        JButton btnLaporanPengaduan = new JButton("Laporan Pengaduan");
         styleSidebarButton(btnDashboardAdmin, new Color(52, 73, 94));
         styleSidebarButton(btnDashboardUser, new Color(52, 73, 94));
         styleSidebarButton(btnManajemenUser, new Color(41, 128, 185));
         styleSidebarButton(btnManajemenPengaduan, new Color(41, 128, 185));
         styleSidebarButton(btnKategori, new Color(41, 128, 185));
         styleSidebarButton(btnPengaduan, new Color(41, 128, 185));
+        styleSidebarButton(btnLaporanPengaduan, new Color(41, 128, 185));
         
         JLabel lblManajemen = new JLabel("Manajemen");
         lblManajemen.setForeground(Color.WHITE);
         lblManajemen.setFont(new Font("SansSerif", Font.BOLD, 14));
+        
+        JLabel lblLaporan = new JLabel("Laporan");
+        lblLaporan.setForeground(Color.WHITE);
+        lblLaporan.setFont(new Font("SansSerif", Font.BOLD, 14));
 
         if("ADMIN".equals(Session.get("access_level"))) {
             topMenuPanel.add(btnDashboardAdmin);
@@ -78,6 +85,9 @@ public class Dashboard extends JFrame {
             topMenuPanel.add(btnManajemenUser);
             topMenuPanel.add(btnManajemenPengaduan);
             topMenuPanel.add(btnKategori);
+            
+            topMenuPanel.add(lblLaporan);
+            topMenuPanel.add(btnLaporanPengaduan);
         } else {
             topMenuPanel.add(btnDashboardUser);
             topMenuPanel.add(btnPengaduan);
@@ -126,6 +136,9 @@ public class Dashboard extends JFrame {
         });
         btnPengaduan.addActionListener(e -> {
             showInternal(new PengaduanContent(desktopPane));
+        });
+        btnLaporanPengaduan.addActionListener(e -> {
+            showInternal(new LaporanPengaduanContent(desktopPane));
         });
         btnLogout.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(
