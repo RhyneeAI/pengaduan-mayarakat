@@ -31,6 +31,7 @@ public class PengaduanManagement extends JInternalFrame {
     private final DefaultTableModel tableModel;
     private JDateChooser dateChooserStart;
     private JDateChooser dateChooserEnd;
+    private JComboBox<String> comboStatus;
     public JDesktopPane desktopPane;
     
     PengaduanController pc = new PengaduanController();
@@ -77,7 +78,7 @@ public class PengaduanManagement extends JInternalFrame {
         gbc.anchor = GridBagConstraints.WEST;
 
         // Label Tanggal Awal
-        JLabel tglAwal = new JLabel("Tanggal Awal");
+        JLabel tglAwal = new JLabel("Tanggal");
         gbc.gridx = 0;
         gbc.weightx = 0;
         panelForm.add(tglAwal, gbc);
@@ -104,9 +105,17 @@ public class PengaduanManagement extends JInternalFrame {
         dateChooserEnd.setPreferredSize(new Dimension(150, 25));
         dateChooserEnd.setDate(th.getDateNow());
         panelForm.add(dateChooserEnd, gbc);
+        
+        gbc.gridx = 4;
+        gbc.weightx = 0.2;
+        comboStatus = new JComboBox<>(new String[]{
+            "Semua Status", "Terbaru", "Diproses", "Diterima", "Ditolak", "Selesai"
+        });
+        comboStatus.setPreferredSize(new Dimension(120, 25));
+        panelForm.add(comboStatus, gbc);
 
         // Tombol Filter
-        gbc.gridx = 4;
+        gbc.gridx = 5;
         gbc.weightx = 0.2;
         JButton btnFilter = new JButton("Filter");
         panelForm.add(btnFilter, gbc);
@@ -206,11 +215,28 @@ public class PengaduanManagement extends JInternalFrame {
     }
     
     public final void loadDataTable() {
-        ArrayBuilder[] condition = {
-            new ArrayBuilder("date >=", TimeHelper.setYMD(dateChooserStart.getDate())),
-            new ArrayBuilder("date <=", TimeHelper.setYMD(dateChooserEnd.getDate()))
-        };
+        ArrayList<ArrayBuilder> conditionList = new ArrayList<>();
+        conditionList.add(new ArrayBuilder("date >=", TimeHelper.setYMD(dateChooserStart.getDate())));
+        conditionList.add(new ArrayBuilder("date <=", TimeHelper.setYMD(dateChooserEnd.getDate())));
 
+        // Ambil status dari combo box
+        String selectedStatus = (String) comboStatus.getSelectedItem();
+        if (selectedStatus != null && !"Semua Status".equals(selectedStatus)) {
+            // Mapping ke value di database
+            String dbStatus = switch (selectedStatus) {
+                case "Terbaru" -> "New";
+                case "Diproses" -> "Process";
+                case "Diterima" -> "Accepted";
+                case "Ditolak" -> "Rejected";
+                case "Selesai" -> "Finished";
+                default -> "";
+            };
+            if (!dbStatus.isEmpty()) {
+                conditionList.add(new ArrayBuilder("status", dbStatus));
+            }
+        }
+
+        ArrayBuilder[] condition = conditionList.toArray(new ArrayBuilder[0]);
         List<Map<String, Object>> pengaduanList = pc.getPengaduan(condition, new ArrayBuilder("newest", ""));
 
         tableModel.setRowCount(0); // Reset
@@ -222,13 +248,23 @@ public class PengaduanManagement extends JInternalFrame {
                 if (title.length() > 40) {
                     title = title.substring(0, 40) + "...";
                 }
+                
+                String status = row.get("status").toString();
+                String localizedStatus = switch (status) {
+                    case "New" -> "Terbaru";
+                    case "Process" -> "Diproses";
+                    case "Accepted" -> "Diterima";
+                    case "Rejected" -> "Ditolak";
+                    case "Finished" -> "Selesai";
+                    default -> status;
+                };
 
                 Object[] rowData = new Object[]{
                     no++,
                     TimeHelper.humanizeDate((Date) row.get("date")),
                     title,
                     row.get("category_name"),
-                    row.get("status"),
+                    localizedStatus,
                     "Terima",
                     row.get("id") // kolom ke-6 (index 6), disembunyikan
                 };
@@ -249,13 +285,13 @@ public class PengaduanManagement extends JInternalFrame {
             label.setOpaque(true);
             label.setBackground(Color.WHITE);
 
-            String status = value.toString().toLowerCase();
+            String status = value.toString();
 
             switch (status) {
-                case "new" -> label.setForeground(ColorHelper.INFO);
-                case "process" -> label.setForeground(ColorHelper.WARNING);
-                case "accepted" -> label.setForeground(ColorHelper.SUCCESS);
-                case "rejected" -> label.setForeground(ColorHelper.DANGER);
+                case "Terbaru" -> label.setForeground(ColorHelper.INFO);
+                case "Diproses" -> label.setForeground(ColorHelper.WARNING);
+                case "Diterima" -> label.setForeground(ColorHelper.SUCCESS);
+                case "Ditolak" -> label.setForeground(ColorHelper.DANGER);
                 default -> label.setForeground(ColorHelper.PRIMARY);
             }
 
@@ -348,9 +384,12 @@ public class PengaduanManagement extends JInternalFrame {
                     currentId = table.getModel().getValueAt(modelRow, 6).toString();
                     
                     String id = table.getModel().getValueAt(modelRow, 6).toString();
-                    List<ArrayBuilder> data = new ArrayList<>();
-                    data.add(new ArrayBuilder("status", "Process"));
-                    pc.updatePengaduan(id, data);
+                    String status = table.getModel().getValueAt(modelRow, 5).toString();
+                    if(status == "Selesai") {
+                        List<ArrayBuilder> data = new ArrayList<>();
+                        data.add(new ArrayBuilder("status", "Process"));
+                        pc.updatePengaduan(id, data);
+                    }
 
                     ProsesPengaduanForm form = new ProsesPengaduanForm(desktopPane, currentId);
                     desktopPane.removeAll();

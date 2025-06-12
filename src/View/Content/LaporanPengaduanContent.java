@@ -28,8 +28,8 @@ public class LaporanPengaduanContent extends JInternalFrame {
     private final DefaultTableModel tableModel;
     private JDateChooser dateChooserStart;
     private JDateChooser dateChooserEnd;
-    public JDesktopPane desktopPane;
     private JComboBox<String> comboStatus;
+    public JDesktopPane desktopPane;
     
     PengaduanController pc = new PengaduanController();
     TimeHelper th = new TimeHelper();
@@ -300,7 +300,7 @@ public class LaporanPengaduanContent extends JInternalFrame {
     }
     
     public final void loadDataTable() {
-         ArrayList<ArrayBuilder> conditionList = new ArrayList<>();
+        ArrayList<ArrayBuilder> conditionList = new ArrayList<>();
         conditionList.add(new ArrayBuilder("date >=", TimeHelper.setYMD(dateChooserStart.getDate())));
         conditionList.add(new ArrayBuilder("date <=", TimeHelper.setYMD(dateChooserEnd.getDate())));
 
@@ -335,20 +335,21 @@ public class LaporanPengaduanContent extends JInternalFrame {
                 }
                 
                 String status = row.get("status").toString();
-                switch (status) {
-                    case "new" -> status = "Terbaru";
-                    case "process" -> status = "Diproses";
-                    case "accepted" -> status = "Diterima";
-                    case "rejected" -> status = "Ditolak";
-                    case "Finished" -> status = "Selesai";
-                }
+                String localizedStatus = switch (status) {
+                    case "New" -> "Terbaru";
+                    case "Process" -> "Diproses";
+                    case "Accepted" -> "Diterima";
+                    case "Rejected" -> "Ditolak";
+                    case "Finished" -> "Selesai";
+                    default -> status;
+                };
 
                 Object[] rowData = new Object[]{
                     no++,
                     TimeHelper.humanizeDate((Date) row.get("date")),
                     title,
                     row.get("category_name"),
-                    status,
+                    localizedStatus,
                     row.get("id") // kolom ke-5 (index 5), disembunyikan
                 };
                 tableModel.addRow(rowData);
@@ -371,10 +372,10 @@ public class LaporanPengaduanContent extends JInternalFrame {
             String status = value.toString().toLowerCase();
 
             switch (status) {
-                case "new" -> label.setForeground(ColorHelper.INFO);
-                case "process" -> label.setForeground(ColorHelper.WARNING);
-                case "accepted" -> label.setForeground(ColorHelper.SUCCESS);
-                case "rejected" -> label.setForeground(ColorHelper.DANGER);
+                case "Terbaru" -> label.setForeground(ColorHelper.INFO);
+                case "Diproses" -> label.setForeground(ColorHelper.WARNING);
+                case "Diterima" -> label.setForeground(ColorHelper.SUCCESS);
+                case "Ditolak" -> label.setForeground(ColorHelper.DANGER);
                 default -> label.setForeground(ColorHelper.PRIMARY);
             }
 
