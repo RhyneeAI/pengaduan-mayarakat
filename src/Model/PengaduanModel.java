@@ -107,7 +107,7 @@ public class PengaduanModel {
             new ArrayBuilder("cc.complaint_id", idPengaduan)
         };
 
-        qb.select("cc.date, cc.comment, u.name as author")
+        qb.select("cc.date, cc.comment, u.name")
           .from("complaint_comments as cc")
           .leftJoin("users as u", "cc.user_id = u.id")
           .where(condition);

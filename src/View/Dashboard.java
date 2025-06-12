@@ -37,7 +37,7 @@ public class Dashboard extends JFrame {
         navbar.setBackground(new Color(45, 118, 232));
         navbar.setPreferredSize(new Dimension(0, 50));
 
-        JLabel titleLabel = new JLabel("Selamat Datang", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Selamat Datang, " + Session.get("name"), SwingConstants.CENTER);
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         navbar.add(titleLabel, BorderLayout.CENTER);
@@ -52,19 +52,19 @@ public class Dashboard extends JFrame {
 
         // Panel atas sidebar
         JPanel topMenuPanel = new JPanel();
-        topMenuPanel.setLayout(new GridLayout(7, 1, 0, 5));
+        topMenuPanel.setLayout(new GridLayout(8, 1, 0, 5));
         topMenuPanel.setBackground(new Color(35, 45, 65));
         topMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
 
         JButton btnDashboardAdmin = new JButton("Dashboard");
-        JButton btnDashboardUser = new JButton("Beranda");
+        JButton btnPostingan = new JButton("Postingan");
         JButton btnKategori = new JButton("Kategori");
         JButton btnManajemenUser = new JButton("User");
         JButton btnManajemenPengaduan = new JButton("Pengaduan");
         JButton btnPengaduan = new JButton("Pengaduan");
         JButton btnLaporanPengaduan = new JButton("Laporan Pengaduan");
         styleSidebarButton(btnDashboardAdmin, new Color(52, 73, 94));
-        styleSidebarButton(btnDashboardUser, new Color(52, 73, 94));
+        styleSidebarButton(btnPostingan, new Color(52, 73, 94));
         styleSidebarButton(btnManajemenUser, new Color(41, 128, 185));
         styleSidebarButton(btnManajemenPengaduan, new Color(41, 128, 185));
         styleSidebarButton(btnKategori, new Color(41, 128, 185));
@@ -81,6 +81,7 @@ public class Dashboard extends JFrame {
 
         if("ADMIN".equals(Session.get("access_level"))) {
             topMenuPanel.add(btnDashboardAdmin);
+            topMenuPanel.add(btnPostingan);
             topMenuPanel.add(lblManajemen);
             topMenuPanel.add(btnManajemenUser);
             topMenuPanel.add(btnManajemenPengaduan);
@@ -89,7 +90,7 @@ public class Dashboard extends JFrame {
             topMenuPanel.add(lblLaporan);
             topMenuPanel.add(btnLaporanPengaduan);
         } else {
-            topMenuPanel.add(btnDashboardUser);
+            topMenuPanel.add(btnPostingan);
             topMenuPanel.add(btnPengaduan);
         }
 
@@ -122,7 +123,7 @@ public class Dashboard extends JFrame {
         btnDashboardAdmin.addActionListener(e -> {
             showInternal(new DashboardAdminContent(desktopPane));
         });
-        btnDashboardUser.addActionListener(e -> {
+        btnPostingan.addActionListener(e -> {
             showInternal(new DashboardUserContent(desktopPane));
         });
         btnManajemenUser.addActionListener((ActionEvent e) -> {
@@ -161,7 +162,11 @@ public class Dashboard extends JFrame {
             }
         });
 
-        showInternal(new DashboardAdminContent(desktopPane));
+        if("ADMIN".equals(Session.get("access_level"))) {
+            showInternal(new DashboardAdminContent(desktopPane));
+        } else {
+            showInternal(new DashboardUserContent(desktopPane));
+        }
     }
 
     private void styleSidebarButton(JButton button, Color bgColor) {

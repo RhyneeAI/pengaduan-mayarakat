@@ -131,14 +131,11 @@ public class LaporanPengaduanContent extends JInternalFrame {
             loadDataTable();
         });
         
-        gbc.gridx = 5;
+        gbc.gridx = 6;
         gbc.weightx = 0.2;
         JButton btnExport = new JButton("Export PDF");
         panelForm.add(btnExport, gbc);
         
-        gbc.gridx = 5;
-        gbc.gridwidth = 2;
-        panelForm.add(new JLabel(""), gbc);
 
         // === ROW 3: Table ===
         gbc.gridy = 3;

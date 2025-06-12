@@ -1,14 +1,13 @@
 package View.Content.Pengaduan;
+import Controller.PengaduanController;
 import Helper.ColorHelper;
+import Helper.MessageHelper;
 import Helper.RoundedButton;
 import Helper.TimeHelper;
 import Helper.UIHelper;
-import Controller.PengaduanController;
-import Helper.MessageHelper;
 import Lib.ArrayBuilder;
 import Lib.Session;
 import View.Content.DashboardUserContent;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,12 +18,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
-
-import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.*;
 
 public class KomenPengaduanForm extends JInternalFrame {
     private List<Map<String, Object>> komentarList = null;
@@ -39,11 +37,11 @@ public class KomenPengaduanForm extends JInternalFrame {
         
         komentarList = new PengaduanController().getKomenPengaduanById(idPengaduan);
         int komentarCount = komentarList != null ? komentarList.size() : 1;
-        int totalHeight = komentarCount * 65;
-        int emptyBorderTop = 0;
-        if(komentarCount != 0) {
-            emptyBorderTop = totalHeight * 2;
-        }
+        int totalHeight = komentarCount * 30;
+        int emptyBorderTop = 30;
+//        if(komentarCount != 0) {
+//            emptyBorderTop = totalHeight * 2;
+//        }
 //        System.out.println(idPengaduan);
         Map<String, Object> pengaduanData = pc.getPengaduanById(idPengaduan);
         Map<String, Object> tanggapanData = pc.getTanggapanById(idPengaduan);
@@ -61,7 +59,7 @@ public class KomenPengaduanForm extends JInternalFrame {
         panelForm.setBorder(BorderFactory.createEmptyBorder(emptyBorderTop, 50, 20, 60));
         panelForm.setBackground(Color.WHITE);
 //        panelForm.setPreferredSize(new Dimension(600, panelForm.getPreferredSize().height));
-//        panelForm.setPreferredSize(new Dimension(600, 2400));
+        panelForm.setPreferredSize(new Dimension(600, 2400));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(0, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -178,10 +176,10 @@ public class KomenPengaduanForm extends JInternalFrame {
         panelForm.add(Box.createVerticalStrut(20), gbc);
 
         // === Row 10: Label Komentar
-        gbc.insets = new Insets(0, 0, 20, 0);
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 4;
+        gbc.insets = new Insets(0, 0, 20, 0);
         JLabel lblKomentar = new JLabel("Komentar");
         lblKomentar.setFont(new Font("SansSerif", Font.BOLD, 18));
         panelForm.add(lblKomentar, gbc);
@@ -189,13 +187,13 @@ public class KomenPengaduanForm extends JInternalFrame {
         // === Row 11: Tambah komentar
         gbc.gridy++;
         gbc.gridx = 0;
-        gbc.ipady = 30;
+        gbc.ipady = 50;
         gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weighty = 0.0;
-        gbc.insets = new Insets(0, 0, -45, 0);
+        gbc.insets = new Insets(0, 0, 25, 20);
 
-        JTextArea txtaKomentar = new JTextArea(4, 50); // ini akan dihitung kira-kira 4 baris
+        JTextArea txtaKomentar = new JTextArea(20, 50); // ini akan dihitung kira-kira 4 baris
         txtaKomentar.setLineWrap(true);
         txtaKomentar.setWrapStyleWord(true);
 
@@ -219,20 +217,18 @@ public class KomenPengaduanForm extends JInternalFrame {
         gbc.gridx = 3;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(15, 20, 15, 0);
+        gbc.insets = new Insets(0, 0, 25, 0);
         gbc.ipady = 10;
         panelForm.add(btnKirimKomentar, gbc);
 
-        
         
         // === Row 12: Panel List Komentar (scrollable)
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 4; // Pastikan sama dengan kolom utama
+        gbc.ipady = 50;
+        gbc.insets = new Insets(0, 0, 0, 0);
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 0.0;
-        gbc.weighty = 0.0;
-        
         
         komentarPanel.setLayout(new BoxLayout(komentarPanel, BoxLayout.Y_AXIS));
         komentarPanel.setBackground(Color.WHITE); // Lebih netral
@@ -243,17 +239,18 @@ public class KomenPengaduanForm extends JInternalFrame {
         JScrollPane komentarScroll = new JScrollPane(komentarPanel);
         komentarScroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         komentarScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        gbc.insets = new Insets(totalHeight, 0, 0, 0);
-        gbc.ipady = totalHeight;
+//        gbc.insets = new Insets(totalHeight, 0, 0, 0);
+//        gbc.ipady = totalHeight;
         panelForm.add(komentarScroll, gbc);
 
         // === Row 13: Spacer
-        gbc.weighty = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 4;
-        panelForm.add(Box.createVerticalStrut(20), gbc);
+//        gbc.weighty = 0;
+//        gbc.fill = GridBagConstraints.BOTH;
+//        gbc.gridy++;
+//        gbc.gridx = 0;
+//        gbc.gridwidth = 4;
+//        gbc.ipady = 0;
+//        panelForm.add(Box.createVerticalStrut(20), gbc);
         
         // === Row 14: Button Kembali di kanan bawah
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -277,19 +274,21 @@ public class KomenPengaduanForm extends JInternalFrame {
         btnPanel.setBackground(Color.WHITE);
         gbc.gridy++;
         gbc.gridx = 3;  // kolom terakhir
+        gbc.ipady = 0;
         panelForm.add(btnPanel, gbc);
         
         // Spacer
-        gbc.weighty = 1.0;
+        gbc.weighty = 0.1;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 4;
-        panelForm.add(new JLabel("<html><div style='height: 500px'></div></html>"), gbc);
+        panelForm.add(new JLabel("-"), gbc);
+        
 
         // === Tambahkan ke frame ===
         JPanel wrapperPanel = new JPanel(new BorderLayout());
-        wrapperPanel.setPreferredSize(new Dimension(800, 1600));
+//        wrapperPanel.setPreferredSize(new Dimension(800, 1600));
         wrapperPanel.setBackground(Color.decode("#FFFFFF")); 
         wrapperPanel.add(panelForm, BorderLayout.CENTER);
         wrapperPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, -30, -10));
@@ -301,7 +300,7 @@ public class KomenPengaduanForm extends JInternalFrame {
         JScrollPane scrollPane = new JScrollPane(wrapperPanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         scrollPane.getVerticalScrollBar().setUnitIncrement(20);
-        scrollPane.setPreferredSize(new Dimension(800, 9600));
+//        scrollPane.setPreferredSize(new Dimension(800, 9600));
 
         // Tambahkan scrollPane ke frame
         add(scrollPane, BorderLayout.CENTER);
@@ -321,10 +320,12 @@ public class KomenPengaduanForm extends JInternalFrame {
 
                 // Header: tanggal & pembuat
                 String tanggalKomen = th.humanizeDate(th.parseDate(komen.get("date").toString()));
-                String pembuat = komen.get("author") != null ? komen.get("author").toString() : "-";
+                String pembuat = komen.get("name") != null ? komen.get("name").toString() : " ";
+//                System.out.println(komen.get("name"));
                 JLabel lblHeader = new JLabel(tanggalKomen + " - " + pembuat);
                 lblHeader.setFont(new Font("SansSerif", Font.PLAIN, 12));
                 lblHeader.setForeground(new Color(120, 120, 120));
+                lblHeader.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
                 // Isi komentar
                 String isiKomentar = komen.get("comment") != null ? komen.get("comment").toString() : "";

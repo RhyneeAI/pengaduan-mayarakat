@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -214,7 +213,7 @@ public class Register extends JFrame {
 
             if (Boolean.TRUE.equals(result.get("status"))) {
                 this.dispose();
-                new Dashboard().setVisible(true);
+                new Login().setVisible(true);
             }
         });
 
